@@ -36,7 +36,7 @@ a { color: inherit; text-decoration: none; }
 
 .hero { min-height: 570px; display: grid; grid-template-columns: .88fr 1.12fr; border-bottom: 1px solid var(--line); }
 .hero-copy { padding: 58px 7vw 45px; display: flex; flex-direction: column; justify-content: center; }
-.hero h1 { margin: 0 0 24px; font-size: clamp(72px, 9.5vw, 140px); line-height: .78; font-weight: 750; letter-spacing: -.075em; }
+.hero h1 { margin: 0 0 24px; font-size: clamp(72px, 9.5vw, 140px); line-height: 1; font-weight: 750; letter-spacing: -.075em; }
 .hero h1 span { letter-spacing: -.14em; }
 .hero-message { margin: 0 0 25px; font-size: clamp(15px, 1.35vw, 19px); line-height: 1.85; font-weight: 600; }
 .hero-message p { margin: 0; }
@@ -66,12 +66,11 @@ a { color: inherit; text-decoration: none; }
 .create-list p { margin: 0; font-size: 12px; line-height: 1.7; font-weight: 500; }
 
 .section { padding: 48px max(32px, 8vw); }
-.section-heading { margin-bottom: 28px; text-align: center; }
+.section-heading { margin-bottom: 28px; text-align: left; }
 .section-heading h2 { margin: 0; font-size: 23px; font-weight: 700; letter-spacing: .04em; }
-.section-heading h2::after { content: ""; display: block; width: 28px; height: 2px; margin: 9px auto 0; background: var(--ink); }
+.section-heading h2::after { content: ""; display: block; width: 28px; height: 2px; margin: 9px 0 0; background: var(--ink); }
 .section-heading p { margin: 15px 0 0; color: var(--muted); font-size: 11px; }
-.align-left { text-align: left; margin-bottom: 22px; }
-.align-left h2::after { margin-left: 0; }
+.align-left { margin-bottom: 22px; }
 
 .service { background: var(--soft); }
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 1200px; margin: 0 auto; }
@@ -85,8 +84,8 @@ a { color: inherit; text-decoration: none; }
 .service-card > p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.9; }
 
 .about { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: .9fr 1.1fr; gap: 5vw; align-items: stretch; }
-.about-visual { min-height: 315px; padding: 45px; background: #f1f0ec; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 13px; color: #b0aea7; font-size: clamp(26px, 3.3vw, 46px); line-height: 1; font-weight: 700; letter-spacing: -.04em; }
-.about-visual span:nth-child(2) { color: var(--ink); font-size: 22px; }
+.about-visual { min-height: 315px; overflow: hidden; background: #f1f0ec; }
+.about-visual img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
 .about-copy { padding: 20px 0; }
 .about-copy h3 { margin: 0 0 20px; font-size: clamp(20px, 2vw, 27px); font-weight: 650; }
 .about-copy > p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.95; }
@@ -94,14 +93,12 @@ a { color: inherit; text-decoration: none; }
 .information { border-top: 1px solid var(--line); }
 .company-panel { padding: 46px max(32px, 8vw); }
 .company-panel { background: white; }
-.company-layout { width: min(1180px, 100%); display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(270px, .8fr); gap: clamp(35px, 6vw, 90px); align-items: center; }
+.company-layout { width: min(900px, 100%); }
 .company-panel dl { width: 100%; margin: 0; }
 .company-panel dl > div { display: grid; grid-template-columns: 105px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 12px; line-height: 1.8; }
 .company-panel dt { font-weight: 650; }
 .company-panel dd { margin: 0; color: var(--muted); }
 .company-panel a { text-decoration: underline; text-underline-offset: 3px; }
-.company-cats { align-self: stretch; min-height: 355px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.company-cats img { width: min(100%, 410px); height: auto; display: block; opacity: .82; mix-blend-mode: multiply; transform: rotate(-1.5deg); }
 
 .contact-group { border-top: 1px solid var(--line); }
 .contact-group-heading { margin: 0; padding: 48px max(32px, 8vw) 8px; background: white; }
@@ -172,10 +169,7 @@ footer { height: 46px; padding: 0 max(32px, 8vw); background: var(--ink); color:
   .about { grid-template-columns: 1fr; gap: 28px; }
   .about-visual { min-height: 230px; }
   .company-panel { padding: 42px 20px; }
-  .company-layout { display: block; }
   .company-panel dl > div { grid-template-columns: 78px 1fr; }
-  .company-cats { min-height: 0; margin: 28px auto -4px; width: min(82vw, 330px); }
-  .company-cats img { opacity: .72; }
   .contact-group-heading { padding: 42px 20px 5px; }
   .business-contact { padding: 38px 20px 48px; }
   .business-intro { grid-template-columns: 1fr; gap: 28px; padding-bottom: 35px; }
