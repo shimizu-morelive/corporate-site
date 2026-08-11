@@ -78,10 +78,8 @@ export default function Home() {
       </section>
 
       <section className="about section" id="about" aria-labelledby="about-title">
-        <div className="about-visual" aria-hidden="true">
-          <span>GOOD PRODUCTS</span>
-          <span>×</span>
-          <span>PEOPLE</span>
+        <div className="about-visual">
+          <img src="/about-live-commerce.png" alt="商品を紹介しながらライブ配信を行うライブコマーサー" />
         </div>
         <div className="about-copy">
           <div className="section-heading align-left">
@@ -170,9 +168,6 @@ export default function Home() {
               <div><dt>事業内容</dt><dd>ライブコマースチャンネルの企画・運営<br />商品の委託販売・販売支援<br />ライブコマーサーのマネジメント</dd></div>
               <div><dt>お問い合わせ</dt><dd><a href="mailto:info@more-live.com">info@more-live.com</a></dd></div>
             </dl>
-            <div className="company-cats" aria-hidden="true">
-              <img src="/company-cats.png" alt="" />
-            </div>
           </div>
         </div>
       </section>
