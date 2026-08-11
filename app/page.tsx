@@ -95,8 +95,10 @@ export default function Home() {
         <div className="contact-group-heading section-heading">
           <h2 id="contact-heading">CONTACT</h2>
           <p>メーカー・小売事業者さま、ライブコマーサーの方へ</p>
-          <p className="contact-lead">一緒に、ライブコマースの可能性を広げませんか。</p>
-          <p className="contact-note">モアライブでは、商品をもっと多くの人に届けたいメーカー・小売事業者の方、売る力を仕事にしたいライブコマーサーの方をパートナーとして募集しています。まだ具体的な計画がなくても構いません。まずは気軽にお話しください。</p>
+          <div className="contact-invitation">
+            <p className="contact-lead">一緒に、ライブコマースの可能性を広げませんか。</p>
+            <p className="contact-note">モアライブでは、商品をもっと多くの人に届けたいメーカー・小売事業者の方、売る力を仕事にしたいライブコマーサーの方をパートナーとして募集しています。まだ具体的な計画がなくても構いません。まずは気軽にお話しください。</p>
+          </div>
         </div>
 
       <div className="business-contact" aria-labelledby="business-contact-title">
