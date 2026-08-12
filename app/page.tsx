@@ -168,7 +168,7 @@ export default function Home() {
               <div><dt>会社名</dt><dd>株式会社モアライブ</dd></div>
               <div><dt>所在地</dt><dd>〒104-0053 東京都中央区晴海5-6-7 PARK-T-3013</dd></div>
               <div><dt>代表取締役</dt><dd>清水 美希</dd></div>
-              <div><dt>設立</dt><dd>2026年7月</dd></div>
+              <div><dt>設立</dt><dd>2026年</dd></div>
               <div><dt>事業内容</dt><dd>ライブコマースチャンネルの企画・運営<br />商品の委託販売・販売支援<br />ライブコマーサーのマネジメント</dd></div>
               <div><dt>お問い合わせ</dt><dd><a href="mailto:info@more-live.com">info@more-live.com</a></dd></div>
             </dl>
