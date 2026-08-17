@@ -10,7 +10,7 @@ const notoSansJp = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "株式会社モアライブ | More Live !!!",
-  description: "ライブコマースを通じて、メーカー・消費者・ライブコマーサーをつなぐ株式会社モアライブのコーポレートサイトです。",
+  description: "TikTok Shopを通じて、メーカー・小売事業者、消費者、ライブコマーサーをつなぐ株式会社モアライブのコーポレートサイトです。",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
