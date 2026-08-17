@@ -63,6 +63,23 @@ export default function ServiceDetail({
   ctaText,
   ctaLabel,
 }: ServiceDetailProps) {
+  const visual = (
+    <section className={`detail-visual${stat ? " has-stat" : ""}`}>
+      <div className="detail-visual-image">
+        <Image src={imageSrc} width={1536} height={1024} sizes="100vw" alt={imageAlt} />
+        <p>{imageCaption}</p>
+      </div>
+      {stat && (
+        <div className="detail-stat">
+          <p className="eyebrow">BROADCASTING SYSTEM</p>
+          <strong>{stat.value}</strong>
+          <h2>{stat.label}</h2>
+          <p>{stat.text}</p>
+        </div>
+      )}
+    </section>
+  );
+
   return (
     <main id="top" className={`service-detail service-detail-${variant}`}>
       <SiteHeader />
@@ -79,27 +96,14 @@ export default function ServiceDetail({
         </div>
       </section>
 
+      {visual}
+
       <section className="detail-intro">
         <p className="eyebrow">WHAT WE DO</p>
         <div className="detail-intro-grid">
           <h2>{introTitle}</h2>
           <div>{descriptions.map((description) => <p key={description}>{description}</p>)}</div>
         </div>
-      </section>
-
-      <section className={`detail-visual${stat ? " has-stat" : ""}`}>
-        <div className="detail-visual-image">
-          <Image src={imageSrc} width={1536} height={1024} sizes="100vw" alt={imageAlt} />
-          <p>{imageCaption}</p>
-        </div>
-        {stat && (
-          <div className="detail-stat">
-            <p className="eyebrow">BROADCASTING SYSTEM</p>
-            <strong>{stat.value}</strong>
-            <h2>{stat.label}</h2>
-            <p>{stat.text}</p>
-          </div>
-        )}
       </section>
 
       {journey && (
@@ -137,20 +141,22 @@ export default function ServiceDetail({
         </div>
       </section>
 
-      <section className="detail-flow">
-        <div className="detail-section-heading">
-          <p className="eyebrow">FLOW</p>
-          <h2>ご相談から実施まで</h2>
-        </div>
-        <ol>
-          {steps.map((step, index) => (
-            <li key={step.title}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <div><h3>{step.title}</h3><p>{step.text}</p></div>
-            </li>
-          ))}
-        </ol>
-      </section>
+      {variant !== "sales" && (
+        <section className="detail-flow">
+          <div className="detail-section-heading">
+            <p className="eyebrow">FLOW</p>
+            <h2>ご相談から実施まで</h2>
+          </div>
+          <ol>
+            {steps.map((step, index) => (
+              <li key={step.title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div><h3>{step.title}</h3><p>{step.text}</p></div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {comingSoon && (
         <section className="detail-coming-soon">
