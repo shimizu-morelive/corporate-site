@@ -313,15 +313,15 @@ img { max-width: 100%; }
 
 .service-detail-sales .detail-hero { padding-bottom: 58px; }
 .service-detail-sales .detail-visual { padding-top: 0; }
-.service-detail-sales .detail-intro { background: var(--soft); }
-.service-detail-sales .detail-features { background: #fff; }
+.service-detail-sales .detail-intro { background: #fff; }
+.service-detail-sales .detail-features { background: var(--soft); }
 .service-detail-sales .detail-card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; border: 0; }
 .service-detail-sales .detail-card-grid article,
 .service-detail-sales .detail-card-grid article + article {
   min-height: 190px;
   padding: 26px;
   border: 1px solid var(--line);
-  background: var(--soft);
+  background: #fff;
 }
 .service-detail-sales .detail-card-grid article > span { margin-bottom: 28px; }
 .service-detail-channel .detail-card-grid,
