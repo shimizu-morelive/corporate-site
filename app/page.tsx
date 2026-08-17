@@ -102,12 +102,7 @@ export default function Home() {
           <h3 className="contact-invitation-title">TikTok Shopを、<br />一緒に盛り上げませんか。</h3>
           <p className="contact-lead">モアライブは、TikTok Shopを一緒に盛り上げてくれるパートナーを探しています。</p>
           <p className="contact-description">商品やブランドの新しい販売方法を探している方、ライブコマースを仕事にしたい方、新しい企画に取り組みたい方。まだ具体的な相談内容が固まっていなくても構いません。</p>
-          <ul className="contact-audiences">
-            <li><span>01</span>商品を販売したいメーカー・小売事業者</li>
-            <li><span>02</span>ライブコマーサーとして活動したい方</li>
-            <li><span>03</span>企画・協業について相談したい方</li>
-          </ul>
-          <p className="contact-closing">まずは、今考えていることをお聞かせください。</p>
+          <p className="contact-closing">まずは、今考えていることをお気軽にお聞かせください。</p>
           <a className="contact-mail" href="mailto:info@more-live.com">info@more-live.com</a>
         </div>
         <ContactForm />
