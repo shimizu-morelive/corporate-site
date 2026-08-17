@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- vinext production router currently breaks client-side Link navigation. */
+
 import Image from "next/image";
-import Link from "next/link";
 import { SiteFooter, SiteHeader } from "../site-chrome";
 
 type Feature = {
@@ -67,7 +68,7 @@ export default function ServiceDetail({
       <SiteHeader />
 
       <section className="detail-hero">
-        <Link className="detail-back" href="/#service">← SERVICE一覧へ</Link>
+        <a className="detail-back" href="/#service">← SERVICE一覧へ</a>
         <div className="detail-hero-layout">
           <div>
             <p className="detail-number">SERVICE {number}</p>
@@ -168,7 +169,7 @@ export default function ServiceDetail({
           <h2>{ctaTitle}</h2>
           <p>{ctaText}</p>
         </div>
-        <Link href="/#contact"><span>{ctaLabel}</span><span aria-hidden="true">→</span></Link>
+        <a href="/#contact"><span>{ctaLabel}</span><span aria-hidden="true">→</span></a>
       </section>
 
       <SiteFooter />
