@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import ContactForm from "./contact-form";
 import { SiteFooter, SiteHeader } from "./site-chrome";
 
@@ -50,8 +49,8 @@ export default function Home() {
         <div className="hero-side">
           <Image src="/hero-live-commerce.png" width={1566} height={1005} priority sizes="(max-width: 820px) 100vw, 56vw" alt="スマートフォンを使って化粧品を紹介するライブコマーサー" />
           <div className="hero-links">
-            <Link href="/service/sales-support"><span>メーカー・小売事業者の方へ</span><span aria-hidden="true">→</span></Link>
-            <Link href="/service/creator-management"><span>ライブコマーサーの方へ</span><span aria-hidden="true">→</span></Link>
+            <a href="/service/sales-support"><span>メーカー・小売事業者の方へ</span><span aria-hidden="true">→</span></a>
+            <a href="/service/creator-management"><span>ライブコマーサーの方へ</span><span aria-hidden="true">→</span></a>
           </div>
         </div>
       </section>
@@ -81,7 +80,7 @@ export default function Home() {
         </div>
         <div className="service-grid">
           {services.map((service) => (
-            <Link className="service-card" href={service.href} key={service.number}>
+            <a className="service-card" href={service.href} key={service.number}>
               <div className="service-card-visual">
                 <Image src={service.image} width={1536} height={1024} sizes="(max-width: 820px) 100vw, 33vw" alt={service.imageAlt} />
                 <span className="service-number">{service.number}</span>
@@ -91,7 +90,7 @@ export default function Home() {
                 <p>{service.text}</p>
                 <span className="service-more">詳しく見る <span aria-hidden="true">→</span></span>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </section>

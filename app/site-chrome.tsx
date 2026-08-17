@@ -1,14 +1,14 @@
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages -- vinext production router currently breaks client-side Link navigation. */
 
 export function SiteHeader() {
   return (
     <header className="site-header">
-      <Link className="logo" href="/" aria-label="株式会社モアライブ トップへ">株式会社モアライブ</Link>
+      <a className="logo" href="/" aria-label="株式会社モアライブ トップへ">株式会社モアライブ</a>
       <nav className="nav" aria-label="メインナビゲーション">
-        <Link href="/#about">ABOUT</Link>
-        <Link href="/#service">SERVICE</Link>
-        <Link href="/#contact">CONTACT</Link>
-        <Link href="/#company">COMPANY</Link>
+        <a href="/#about">ABOUT</a>
+        <a href="/#service">SERVICE</a>
+        <a href="/#contact">CONTACT</a>
+        <a href="/#company">COMPANY</a>
       </nav>
     </header>
   );
