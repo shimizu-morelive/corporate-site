@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { SiteFooter, SiteHeader } from "../site-chrome";
+import JourneyExplorer from "./journey-explorer";
 
 type Feature = {
   title: string;
@@ -27,7 +28,11 @@ type ServiceDetailProps = {
   journey?: {
     title: string;
     text: string;
-    steps: { title: string; icon: "product" | "plan" | "creator" | "live" | "purchase" | "analysis" }[];
+    steps: {
+      title: string;
+      icon: "product" | "plan" | "creator" | "live" | "purchase" | "analysis";
+      detail?: { summary: string; points: string[] };
+    }[];
   };
   comingSoon?: {
     title: string;
@@ -35,6 +40,9 @@ type ServiceDetailProps = {
     items: string[];
   };
   featuresTitle: string;
+  featuresHref?: string;
+  featuresLinkDisabled?: boolean;
+  featuresLinkLabel?: string;
   features: Feature[];
   steps: Feature[];
   ctaTitle: string;
@@ -57,6 +65,9 @@ export default function ServiceDetail({
   journey,
   comingSoon,
   featuresTitle,
+  featuresHref,
+  featuresLinkDisabled = false,
+  featuresLinkLabel = "VIEW MORE",
   features,
   steps,
   ctaTitle,
@@ -113,22 +124,30 @@ export default function ServiceDetail({
             <h2>{journey.title}</h2>
             <p>{journey.text}</p>
           </div>
-          <ol>
-            {journey.steps.map((step, index) => (
-              <li key={step.title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <i className={`journey-icon journey-icon-${step.icon}`} aria-hidden="true"><b></b></i>
-                <strong>{step.title}</strong>
-              </li>
-            ))}
-          </ol>
+          {journey.steps.some((step) => step.detail) ? (
+            <JourneyExplorer steps={journey.steps} />
+          ) : (
+            <ol>
+              {journey.steps.map((step, index) => (
+                <li key={step.title}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <i className={`journey-icon journey-icon-${step.icon}`} aria-hidden="true"><b></b></i>
+                  <strong>{step.title}</strong>
+                </li>
+              ))}
+            </ol>
+          )}
         </section>
       )}
 
       <section className="detail-features">
-        <div className="detail-section-heading">
-          <p className="eyebrow">OUR SUPPORT</p>
-          <h2>{featuresTitle}</h2>
+        <div className="detail-section-heading detail-section-heading-with-link">
+          <div>
+            <p className="eyebrow">OUR SUPPORT</p>
+            <h2>{featuresTitle}</h2>
+          </div>
+          {featuresHref && <a className="section-view-more" href={featuresHref}>{featuresLinkLabel}<span aria-hidden="true">→</span></a>}
+          {featuresLinkDisabled && <span className="section-view-more is-disabled" aria-disabled="true">{featuresLinkLabel}<span aria-hidden="true">→</span></span>}
         </div>
         <div className="detail-card-grid">
           {features.map((feature, index) => (

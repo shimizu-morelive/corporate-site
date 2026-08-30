@@ -18,7 +18,7 @@ export default function ChannelOperationPage() {
         "商品の魅力をリアルタイムで伝え、視聴者が楽しみながら商品と出会えるチャンネルを運営します。配信結果を振り返りながら、繰り返し訪れたくなる売り場へ育てます。",
       ]}
       introTitle={"視聴者が楽しめる\n新しい売り場へ"}
-      imageSrc="/service-channel-operation.png"
+      imageSrc="/service-channel-operation.webp"
       imageAlt="商品を紹介するライブコマーサーと配信を支えるスタッフ"
       imageCaption="商品との出会いと、ライブならではの時間を届けるチャンネルへ。"
       stat={{

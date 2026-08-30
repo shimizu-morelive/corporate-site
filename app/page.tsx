@@ -8,7 +8,7 @@ const services = [
     title: "ライブコマース\nチャンネル運営",
     text: "モアライブが主体となり、商品を継続的に紹介・販売するライブコマースチャンネルを運営します。",
     href: "/service/channel-operation",
-    image: "/service-channel-operation.png",
+    image: "/service-channel-operation.webp",
     imageAlt: "ライブコマース配信を行うコマーサーと運営スタッフ",
   },
   {
@@ -16,7 +16,7 @@ const services = [
     title: "委託販売・\n販売支援",
     text: "メーカー・小売事業者の商品や課題に合わせ、委託販売とライブコマース活用を支援します。",
     href: "/service/sales-support",
-    image: "/service-sales-support.png",
+    image: "/service-sales-support.webp",
     imageAlt: "ライブ配信で商品を紹介するコマーサー",
   },
   {
@@ -24,7 +24,7 @@ const services = [
     title: "ライブコマーサー\nマネジメント",
     text: "ライブコマーサーに商品・案件・配信環境・報酬機会・成長機会を提供します。",
     href: "/service/creator-management",
-    image: "/service-creator-management.png",
+    image: "/service-creator-management.webp",
     imageAlt: "スタッフと一緒に配信準備をするライブコマーサー",
   },
 ];
@@ -47,7 +47,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hero-side">
-          <Image src="/hero-live-commerce.png" width={1566} height={1005} priority sizes="(max-width: 820px) 100vw, 56vw" alt="スマートフォンを使って化粧品を紹介するライブコマーサー" />
+          <Image src="/hero-live-commerce.webp" width={1566} height={1005} priority sizes="(max-width: 820px) 100vw, 56vw" alt="スマートフォンを使って化粧品を紹介するライブコマーサー" />
           <div className="hero-links">
             <a href="/service/sales-support"><span>メーカー・小売事業者の方へ</span><span aria-hidden="true">→</span></a>
             <a href="/service/creator-management"><span>ライブコマーサーの方へ</span><span aria-hidden="true">→</span></a>
@@ -57,7 +57,7 @@ export default function Home() {
 
       <section className="about section" id="about" aria-labelledby="about-title">
         <div className="about-visual">
-          <Image src="/about-live-commerce.png" width={1536} height={1024} sizes="(max-width: 820px) 100vw, 44vw" alt="商品を紹介しながらライブ配信を行うライブコマーサー" />
+          <Image src="/about-live-commerce.webp" width={1536} height={1024} sizes="(max-width: 820px) 100vw, 44vw" alt="商品を紹介しながらライブ配信を行うライブコマーサー" />
         </div>
         <div className="about-copy">
           <div className="section-heading align-left">
@@ -67,6 +67,14 @@ export default function Home() {
           <h3>TikTok Shopから、<br />ライブコマースをもっと身近に。</h3>
           <p>モアライブは、TikTok Shopを中心に、ライブ配信とショート動画を活用した販売支援を行っています。商品やブランドの理解から、企画、キャスティング、集客、配信、販売、改善までを一貫して支援します。</p>
           <p className="about-conclusion">TikTok Shopを、一時的な販路ではなく、<br />継続して育つ販売チャネルへ。</p>
+          <div className="about-tiktok-link">
+            <div>
+              <span>WHY TIKTOK SHOP</span>
+              <strong>TikTok Shopの特徴</strong>
+              <p>動画やLIVEから、商品との新しい出会いをつくる販売チャネルです。</p>
+            </div>
+            <span className="about-view-more is-disabled" aria-disabled="true">VIEW MORE <span aria-hidden="true">→</span></span>
+          </div>
         </div>
       </section>
 

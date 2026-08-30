@@ -18,7 +18,7 @@ export default function CreatorManagementPage() {
         "一人ひとりの強みに合う商品や案件を提案し、集客・配信・振り返りまで支援します。継続して活動できる報酬機会とキャリアを一緒につくります。",
       ]}
       introTitle={"売ることを\n仕事にする"}
-      imageSrc="/service-creator-management.png"
+      imageSrc="/service-creator-management.webp"
       imageAlt="スタッフの支援を受けながら商品紹介の準備をするライブコマーサー"
       imageCaption="商品選び、企画、配信環境まで、チームでコマーサーの活動を支えます。"
       featuresTitle="長く活躍するための環境"
