@@ -12,8 +12,8 @@ type JourneyStep = {
 };
 
 export default function JourneyExplorer({ steps }: { steps: JourneyStep[] }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedStep = steps[selectedIndex];
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const selectedStep = selectedIndex === null ? null : steps[selectedIndex];
 
   return (
     <div className="journey-explorer">
@@ -28,7 +28,7 @@ export default function JourneyExplorer({ steps }: { steps: JourneyStep[] }) {
                 role="tab"
                 aria-selected={selected}
                 aria-expanded={selected}
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => setSelectedIndex(selected ? null : index)}
               >
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <i className={`journey-icon journey-icon-${step.icon}`} aria-hidden="true"><b></b></i>
@@ -37,25 +37,27 @@ export default function JourneyExplorer({ steps }: { steps: JourneyStep[] }) {
               {selected && (
                 <div className="journey-detail journey-detail-mobile" role="tabpanel" aria-live="polite">
                   <div>
-                    <span>STEP {String(selectedIndex + 1).padStart(2, "0")}</span>
-                    <h3>{selectedStep.title}</h3>
-                    <p>{selectedStep.detail?.summary}</p>
+                    <span>STEP {String(index + 1).padStart(2, "0")}</span>
+                    <h3>{step.title}</h3>
+                    <p>{step.detail?.summary}</p>
                   </div>
-                  <ul>{selectedStep.detail?.points.map((point) => <li key={point}>{point}</li>)}</ul>
+                  <ul>{step.detail?.points.map((point) => <li key={point}>{point}</li>)}</ul>
                 </div>
               )}
             </li>
           );
         })}
       </ol>
-      <div className="journey-detail journey-detail-desktop" role="tabpanel" aria-live="polite">
-        <div>
-          <span>STEP {String(selectedIndex + 1).padStart(2, "0")}</span>
-          <h3>{selectedStep.title}</h3>
-          <p>{selectedStep.detail?.summary}</p>
+      {selectedStep && selectedIndex !== null && (
+        <div className="journey-detail journey-detail-desktop" role="tabpanel" aria-live="polite">
+          <div>
+            <span>STEP {String(selectedIndex + 1).padStart(2, "0")}</span>
+            <h3>{selectedStep.title}</h3>
+            <p>{selectedStep.detail?.summary}</p>
+          </div>
+          <ul>{selectedStep.detail?.points.map((point) => <li key={point}>{point}</li>)}</ul>
         </div>
-        <ul>{selectedStep.detail?.points.map((point) => <li key={point}>{point}</li>)}</ul>
-      </div>
+      )}
     </div>
   );
 }

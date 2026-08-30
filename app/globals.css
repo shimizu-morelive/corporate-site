@@ -284,7 +284,7 @@ img { max-width: 100%; }
 .journey-step-button > strong { font-size: 12px; line-height: 1.65; }
 .detail-journey li.is-selected { background: rgba(255,255,255,.68); }
 .journey-step-button:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: -4px; }
-.journey-detail { min-height: 174px; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 7vw; background: #fff; border: 1px solid rgba(176,93,83,.25); border-top: 0; }
+.journey-detail { min-height: 174px; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 7vw; background: #fff; border: 1px solid rgba(176,93,83,.25); border-top: 0; animation: journey-detail-in .28s ease-out both; transform-origin: top; }
 .journey-detail-mobile { display: none; }
 .journey-detail > div > span { color: var(--accent-deep); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
 .journey-detail h3 { margin: 9px 0 10px; font-size: 19px; }
@@ -311,6 +311,11 @@ img { max-width: 100%; }
 .journey-icon-analysis::before { width: 27px; height: 25px; left: 15px; top: 17px; border-bottom: 1.5px solid currentColor; border-left: 1.5px solid currentColor; }
 .journey-icon-analysis::after { width: 5px; height: 9px; left: 21px; top: 33px; background: currentColor; box-shadow: 8px -7px 0 currentColor, 16px -15px 0 currentColor; }
 .journey-icon-analysis b { width: 25px; height: 15px; left: 18px; top: 19px; border-top: 1.5px solid var(--accent); transform: rotate(-27deg); }
+
+@keyframes journey-detail-in {
+  from { opacity: 0; transform: translateY(-8px) scaleY(.98); }
+  to { opacity: 1; transform: translateY(0) scaleY(1); }
+}
 
 .detail-features { padding: 72px max(32px, 8vw); background: var(--soft); }
 .detail-section-heading { margin-bottom: 34px; }
@@ -568,4 +573,5 @@ footer { height: 48px; padding: 0 max(32px, 8vw); background: #000; color: white
   .hero-links a, .hero-links a span:last-child { animation: none; }
   .hero-links a { background: #000; }
   .service-card { transition: none; }
+  .journey-detail { animation: none; }
 }
