@@ -9,7 +9,7 @@ const notoSansJp = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "株式会社モアライブ | More Live !!!",
+  title: "TikTok Shop ライブコマース運営・販売支援 | 株式会社モアライブ",
   description: "TikTok Shopを通じて、メーカー・小売事業者、消費者、ライブコマーサーをつなぐ株式会社モアライブのコーポレートサイトです。",
 };
 

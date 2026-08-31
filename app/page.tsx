@@ -36,8 +36,9 @@ export default function Home() {
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <h1>More<br />Live <span>!!!</span></h1>
+          <p className="hero-brand" aria-hidden="true">More<br />Live <span>!!!</span></p>
           <div className="hero-statement">
+            <h1>TikTok Shopのライブコマース運営・販売を一貫支援</h1>
             <p className="hero-about">モアライブは、TikTok Shopを通じて、<br />メーカー・小売事業者、消費者、ライブコマーサーをつなぐ会社です。</p>
             <div className="hero-message">
               <p><span>メーカーには、</span>新しい販売チャネルを。</p>
