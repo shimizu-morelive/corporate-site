@@ -14,6 +14,14 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
+  // GitHub deploys must not erase values managed in the Cloudflare dashboard.
+  // RESEND_API_KEY remains a Secret there; the public routing addresses are
+  // committed here so every deployed version receives them consistently.
+  keep_vars: true,
+  vars: {
+    CONTACT_FROM_EMAIL: "More Live Web <website@send.more-live.com>",
+    CONTACT_TO_EMAIL: "info@more-live.com",
+  },
   d1_databases: d1
     ? [
         {
