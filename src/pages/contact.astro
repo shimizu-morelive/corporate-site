@@ -1,0 +1,132 @@
+---
+import { Image } from "astro:assets";
+import { getEntry } from "astro:content";
+import heroLeft from "../assets/illustrations/hero-left.png";
+import ContactForm from "../components/ContactForm.astro";
+import Base from "../layouts/Base.astro";
+import { lines, phrase } from "../lib/phrase";
+
+const site = (await getEntry("site", "site"))!.data;
+const { contact, hero } = site;
+---
+
+<Base title={`${contact.title} | ${site.companyName}`} description={contact.lead}>
+  <section class="section contact-page" aria-labelledby="contact-title">
+    <span class="side-tab" aria-hidden="true" lang="en">{hero.brand}</span>
+    <div class="container contact-page__inner">
+      <div class="contact-page__copy">
+        <div class="heading">
+          <p class="eyebrow rise" lang="en">{contact.eyebrow}</p>
+          <h1 id="contact-title" class="rise">{contact.title}</h1>
+        </div>
+        <p class="contact-page__invitation phrase" set:html={lines(contact.invitation, hero.emphasis)} />
+        <p class="contact-page__lead phrase fade" set:html={phrase(contact.lead)} />
+        <p class="muted fade" style="--i:1">{contact.description}</p>
+        <p class="fade" style="--i:2">{contact.closing}</p>
+        <a class="contact-page__mail fade" style="--i:3" lang="en" href={`mailto:${contact.email}`} set:html={contact.email.replace("@", "@<wbr>")} />
+      </div>
+      <span class="contact-page__art">
+        <Image class="mask" src={heroLeft} alt="" widths={[320, 640, 880]} sizes="(min-width: 1024px) 440px, 64vw" quality={88} />
+      </span>
+      <ContactForm form={contact.form} email={contact.email} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact-page {
+    padding-top: clamp(40px, 6vw, 96px);
+  }
+
+  .contact-page .side-tab {
+    top: 24px;
+  }
+
+  .contact-page__inner {
+    --art: min(64cqi, 300px);
+    display: grid;
+    gap: 0 24px;
+  }
+
+  .contact-page__copy {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  .contact-page__invitation {
+    margin-top: 12px;
+    font-size: clamp(1.625rem, 1.1rem + 1.6vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    font-feature-settings: "palt";
+  }
+
+  .contact-page__lead {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  .contact-page__mail {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--orange-text);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+
+  /* The art stands on the form panel's top edge. */
+  .contact-page__art {
+    position: relative;
+    z-index: 1;
+    display: block;
+    justify-self: end;
+    width: var(--art);
+    margin-top: 20px;
+    margin-bottom: calc(var(--art) * -0.24);
+    pointer-events: none;
+  }
+
+  .contact-page__art :global(img) {
+    width: 100%;
+  }
+
+  /* The top padding leaves room for the art's feet above the first field. */
+  .contact-page :global(.contact-form) {
+    padding-top: calc(var(--art) * 0.14 + 40px);
+    border-radius: var(--r-l);
+    background: var(--tint);
+  }
+
+  @media (min-width: 1024px) {
+    /* The art heads the form column, so it is in the first view. */
+    .contact-page__inner {
+      --art: 440px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .contact-page__copy {
+      position: sticky;
+      top: calc(var(--header-cover) + 40px);
+      grid-column: 1 / 7;
+      grid-row: 1 / span 2;
+    }
+    .contact-page__art {
+      grid-column: 7 / -1;
+      grid-row: 1;
+      margin-top: 0;
+    }
+    .contact-page :global(.contact-form) {
+      grid-column: 7 / -1;
+      grid-row: 2;
+    }
+  }
+</style>

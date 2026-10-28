@@ -1,0 +1,813 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import commercer from "../assets/icons/commercer.png";
+import maker from "../assets/icons/maker.png";
+import other from "../assets/icons/other.png";
+import doneArt from "../assets/illustrations/hero-right.png";
+import { phrase } from "../lib/phrase";
+import Pixels from "./Pixels.astro";
+
+interface Props {
+  form: CollectionEntry<"site">["data"]["contact"]["form"];
+  email: string;
+}
+const { form, email } = Astro.props;
+const mail = `mailto:${email}`;
+const [privacyBefore, privacyAfter = ""] = form.privacy.split("{link}");
+// /contact?type=… keys and icons, in the order of form.categories (the API's fixed values).
+const kinds = [
+  { type: "maker", icon: maker },
+  { type: "creator", icon: commercer },
+  { type: "other", icon: other },
+];
+const MESSAGE_MAX = 4000;
+const cluster: [number, number][] = [
+  [16, 0],
+  [32, 8],
+  [0, 16],
+  [24, 24],
+  [8, 32],
+];
+---
+
+<div class="contact-form fade" data-contact data-sending={form.sending} data-failure={form.failure} data-summary={form.errors.summary}>
+  <noscript>
+    <style is:inline>
+      .cf-form { display: none !important; }
+      .cf-nojs { padding: 20px 24px; border: 2px solid; border-radius: 24px; background: #fff; font-weight: 700; line-height: 1.8; }
+    </style>
+    <p class="cf-nojs">{form.noscript}<br /><a href={mail} lang="en">{email}</a></p>
+  </noscript>
+
+  <form class="cf-form" method="post" action="/api/contact" novalidate>
+    <fieldset class="cf-field" id="cf-category" aria-describedby="cf-category-error" data-missing={form.errors.category}>
+      <legend class="cf-label">{form.categoryLabel}<span class="cf-req">{form.required}</span></legend>
+      <p class="cf-hint">{form.categoryPlaceholder}</p>
+      <div class="cf-kinds">
+        {
+          form.categories.map((category, i) => (
+            <label class="cf-kind fade" data-type={kinds[i]!.type} style={`--i:${i}`}>
+              <input class="visually-hidden" type="radio" name="category" value={category} required />
+              <span class="cf-kind__icon">
+                <Image src={kinds[i]!.icon} alt="" width={128} quality={88} />
+              </span>
+              <span class="cf-kind__text">
+                <span class="cf-kind__name phrase" set:html={phrase(category)} />
+                <span class="cf-kind__hint phrase" set:html={phrase(form.categoryHints[i]!)} />
+              </span>
+              <span class="cf-kind__mark" aria-hidden="true" />
+            </label>
+          ))
+        }
+      </div>
+      <p class="cf-error" id="cf-category-error"></p>
+    </fieldset>
+
+    <div class="cf-field">
+      <label class="cf-label" for="cf-organization">{form.organizationLabel}</label>
+      <input class="cf-input" id="cf-organization" name="organization" autocomplete="organization" maxlength="120" />
+    </div>
+
+    <div class="cf-field">
+      <label class="cf-label" for="cf-name">{form.nameLabel}<span class="cf-req">{form.required}</span></label>
+      <input class="cf-input" id="cf-name" name="name" autocomplete="name" required maxlength="80" aria-describedby="cf-name-error" data-missing={form.errors.name} />
+      <p class="cf-error" id="cf-name-error"></p>
+    </div>
+
+    <div class="cf-field">
+      <label class="cf-label" for="cf-email">{form.emailLabel}<span class="cf-req">{form.required}</span></label>
+      <input
+        class="cf-input"
+        id="cf-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        autocapitalize="off"
+        spellcheck="false"
+        required
+        maxlength="254"
+        aria-describedby="cf-email-error"
+        data-missing={form.errors.email}
+        data-format={form.errors.emailFormat}
+      />
+      <p class="cf-error" id="cf-email-error"></p>
+    </div>
+
+    <div class="cf-field">
+      <label class="cf-label" for="cf-message">{form.messageLabel}<span class="cf-req">{form.required}</span></label>
+      <textarea
+        class="cf-input"
+        id="cf-message"
+        name="message"
+        rows="7"
+        required
+        maxlength={MESSAGE_MAX}
+        aria-describedby="cf-message-error cf-message-count"
+        data-missing={form.errors.message}></textarea>
+      <p class="cf-error" id="cf-message-error"></p>
+      <p class="cf-count" id="cf-message-count" lang="en"><span data-counter>0</span> / {MESSAGE_MAX}</p>
+    </div>
+
+    <label class="honeypot" aria-hidden="true">
+      <span>Website</span>
+      <input name="website" tabindex="-1" autocomplete="off" />
+    </label>
+
+    <div class="cf-field">
+      <label class="cf-consent">
+        <input class="visually-hidden" type="checkbox" id="cf-consent" required aria-describedby="cf-consent-error" data-missing={form.errors.consent} />
+        <span class="cf-consent__box" aria-hidden="true"></span>
+        <span class="phrase" set:html={phrase(form.consent)} />
+      </label>
+      <p class="cf-error" id="cf-consent-error"></p>
+    </div>
+
+    <div class="cf-alert" role="alert" data-alert></div>
+    <template data-mail><p>{form.mailFallback}<a href={mail} lang="en">{email}</a></p></template>
+
+    <button class="button cf-submit" type="submit">
+      <span class="phrase" data-submit-label set:html={phrase(form.submit)} />
+      <span class="go" aria-hidden="true"></span>
+    </button>
+    <p
+      class="cf-note muted phrase"
+      set:html={`${phrase(form.note)}${phrase(privacyBefore)}<a href="/privacy">${phrase(form.privacyLabel)}</a>${phrase(privacyAfter)}`}
+    />
+  </form>
+
+  <section class="cf-done mask" id="contact-done" tabindex="-1" aria-labelledby="contact-done-title" data-done hidden>
+    <Pixels class="cf-done__px" squares={cluster} width={40} height={40} />
+    <p class="cf-done__big rise" style="--i:3" lang="en">{form.done}</p>
+    <h2 id="contact-done-title" class="cf-done__title phrase rise" style="--i:4" set:html={phrase(form.success)} />
+    <button class="button button--light cf-done__again fade" style="--i:6" type="button" data-again>
+      <span>{form.again}</span>
+      <span class="go" aria-hidden="true"></span>
+    </button>
+    <span class="cf-done__art">
+      <Image class="mask" style="--i:5" src={doneArt} alt="" widths={[280, 560]} sizes="260px" quality={88} />
+    </span>
+  </section>
+</div>
+
+<script>
+  // The API only accepts JSON, so the form is sent with fetch. method="post"
+  // only matters if this script fails: the data then never lands in a URL.
+  type Unit = HTMLInputElement | HTMLTextAreaElement | HTMLFieldSetElement;
+  // The same test as src/pages/api/contact.ts.
+  const EMAIL = /^\S+@\S+\.\S+$/;
+
+  for (const root of document.querySelectorAll<HTMLElement>("[data-contact]")) {
+    const form = root.querySelector("form")!;
+    const done = root.querySelector<HTMLElement>("[data-done]")!;
+    const alert = root.querySelector<HTMLElement>("[data-alert]")!;
+    const mail = root.querySelector<HTMLTemplateElement>("[data-mail]")!;
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+    const label = button.querySelector<HTMLElement>("[data-submit-label]")!;
+    const message = form.querySelector<HTMLTextAreaElement>("textarea")!;
+    const counter = form.querySelector<HTMLElement>("[data-counter]")!;
+    const units = [...form.querySelectorAll<Unit>("[data-missing]")];
+    const idle = label.innerHTML;
+    const { sending = "", failure = "", summary = "" } = root.dataset;
+
+    const type = new URLSearchParams(location.search).get("type");
+    const preset = [...form.querySelectorAll<HTMLElement>(".cf-kind")].find((k) => k.dataset.type === type)?.querySelector("input");
+    // defaultChecked too, so form.reset() keeps the type for the next inquiry.
+    if (preset) preset.checked = preset.defaultChecked = true;
+
+    const problem = (unit: Unit) => {
+      if (unit instanceof HTMLFieldSetElement) return unit.querySelector(":checked") ? "" : unit.dataset.missing;
+      if (unit instanceof HTMLInputElement && unit.type === "checkbox") return unit.checked ? "" : unit.dataset.missing;
+      const value = unit.value.trim();
+      if (!value) return unit.dataset.missing;
+      if (unit.type === "email" && !EMAIL.test(value)) return unit.dataset.format;
+      return "";
+    };
+    const errorOf = (unit: Unit) => document.getElementById(`${unit.id}-error`)!;
+    const show = (unit: Unit, text = "") => {
+      errorOf(unit).textContent = text;
+      // aria-invalid="" would mean false, so it is set to "true" or removed.
+      for (const el of unit instanceof HTMLFieldSetElement ? [...unit.elements] : [unit])
+        if (text) el.setAttribute("aria-invalid", "true");
+        else el.removeAttribute("aria-invalid");
+      return text;
+    };
+    const check = (unit: Unit) => show(unit, problem(unit) ?? "");
+    const focus = (unit: Unit) =>
+      (unit instanceof HTMLFieldSetElement ? (unit.querySelector<HTMLInputElement>(":checked") ?? unit.querySelector("input")!) : unit).focus();
+    const say = (text = "", withMail = false) => {
+      if (!text) return alert.replaceChildren();
+      const p = document.createElement("p");
+      p.textContent = text;
+      alert.replaceChildren(p, ...(withMail ? [mail.content.cloneNode(true)] : []));
+    };
+    const count = () => {
+      counter.textContent = String(message.value.length);
+      counter.parentElement!.toggleAttribute("data-near", message.value.length > message.maxLength * 0.9);
+    };
+
+    for (const unit of units) {
+      // Judged once left with a change, then live until it is right.
+      unit.addEventListener("change", () => check(unit));
+      unit.addEventListener("input", () => {
+        if (errorOf(unit).textContent) check(unit);
+      });
+    }
+    // The summary describes the last submit only.
+    let stale = false;
+    form.addEventListener("change", () => {
+      if (!stale) return;
+      stale = false;
+      say();
+    });
+    message.addEventListener("input", count);
+    count();
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (form.hasAttribute("aria-busy")) return;
+      const invalid = units.filter((unit) => check(unit));
+      if (invalid.length) {
+        say(summary.replace("{n}", String(invalid.length)));
+        stale = true;
+        focus(invalid[0]!);
+        return;
+      }
+      say();
+      const data = Object.fromEntries(new FormData(form));
+      form.setAttribute("aria-busy", "true");
+      // Not disabled: a disabled button would drop the focus while sending.
+      button.setAttribute("aria-disabled", "true");
+      label.textContent = sending;
+
+      let ok = false;
+      let text = failure;
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const result = (await response.json().catch(() => null)) as { message?: string } | null;
+        ok = response.ok;
+        text = result?.message ?? text;
+      } catch {
+        // Network error: keep the generic failure message.
+      }
+
+      form.removeAttribute("aria-busy");
+      button.removeAttribute("aria-disabled");
+      label.innerHTML = idle;
+      if (!ok) return say(text, true);
+      form.hidden = true;
+      done.hidden = false;
+      // WebKit leaves a partly visible target where it is, which can hide the
+      // card's top (and its reveal) above the screen.
+      done.focus({ preventScroll: true });
+      done.scrollIntoView({ block: "nearest" });
+    });
+
+    root.querySelector("[data-again]")!.addEventListener("click", () => {
+      form.reset();
+      for (const unit of units) show(unit);
+      say();
+      count();
+      done.hidden = true;
+      form.hidden = false;
+      focus(units[0]!);
+    });
+  }
+</script>
+
+<style>
+  .contact-form {
+    /* 35×30 on a 5px grid, drawn at 0.4× (14×12) so every cell is 2px. */
+    --check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 35 30'%3E%3Cpath d='M0 10h5v10H0zM5 15h5v10H5zM10 20h5v10h-5zM15 15h5v10h-5zM20 10h5v10h-5zM25 5h5v10h-5zM30 0h5v10h-5z'/%3E%3C/svg%3E");
+    padding: clamp(24px, 4vw, 48px);
+    background: var(--white);
+  }
+
+  :is(.cf-form, .cf-done)[hidden] {
+    display: none;
+  }
+
+  .cf-form {
+    display: grid;
+    gap: clamp(32px, 4vw, 44px);
+    counter-reset: cf;
+  }
+
+  .cf-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  fieldset.cf-field {
+    gap: 12px;
+  }
+
+  .cf-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 0;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    line-height: 1.6;
+    letter-spacing: 0.08em;
+  }
+
+  legend.cf-label {
+    margin-bottom: 4px;
+  }
+
+  .cf-label::before {
+    counter-increment: cf;
+    content: counter(cf, decimal-leading-zero);
+    content: counter(cf, decimal-leading-zero) / "";
+    color: var(--orange-text);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  .cf-req {
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--white);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.7;
+    letter-spacing: 0.1em;
+  }
+
+  .cf-hint {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  /* Category rows: the fill sweeps up like the top page's entry panels. */
+  .cf-kinds {
+    display: grid;
+    gap: 12px;
+  }
+
+  .cf-kind {
+    --sweep: var(--ink);
+    --on: var(--white);
+    --hint-on: var(--on-ink-muted);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    min-height: 92px;
+    padding: 12px 20px 12px 14px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-m);
+    background: var(--white);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 0.4s var(--ease-out),
+      border-color 0.4s var(--ease-out),
+      translate 0.5s var(--ease-out),
+      scale 0.5s var(--ease-out);
+  }
+
+  /* Ink on the brand orange (5.8:1). */
+  .cf-kind[data-type="maker"] {
+    --sweep: var(--orange);
+    --on: var(--ink);
+    --hint-on: var(--ink);
+  }
+
+  /* Over the border as well: inside it, the fill's corners miss the border's
+     curve and leave a light hairline round the checked row. */
+  .cf-kind::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(var(--sweep), var(--sweep)) bottom / 100% 0 no-repeat;
+    transition: background-size 0.6s var(--ease-mask);
+  }
+
+  .cf-kind__icon {
+    display: grid;
+    place-items: center;
+    width: clamp(56px, 12cqi, 72px);
+    aspect-ratio: 1;
+    border: 3px solid var(--ink);
+    border-radius: 28%;
+    background: var(--white);
+    rotate: -6deg;
+    transition:
+      rotate 0.45s steps(3, jump-none),
+      scale 0.45s steps(3, jump-none);
+  }
+
+  .cf-kind__icon :global(img) {
+    width: 84%;
+  }
+
+  .cf-kind__text {
+    display: grid;
+    gap: 2px;
+  }
+
+  .cf-kind__name {
+    font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+    font-weight: 800;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    font-feature-settings: "palt";
+  }
+
+  .cf-kind__hint {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    transition: color 0.4s var(--ease-out);
+  }
+
+  .cf-kind__mark,
+  .cf-consent__box {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    aspect-ratio: 1;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    transition: background-color 0.3s var(--ease-out);
+  }
+
+  .cf-consent__box {
+    border-color: var(--ink);
+    border-radius: 8px;
+    background: var(--white);
+  }
+
+  :is(.cf-kind__mark, .cf-consent__box)::after {
+    content: "";
+    width: 14px;
+    height: 12px;
+    background: var(--tick, var(--ink));
+    -webkit-mask: var(--check) center / 14px 12px no-repeat;
+    mask: var(--check) center / 14px 12px no-repeat;
+    /* Drawn column by column: pixels move in steps. */
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.35s steps(7);
+  }
+
+  :is(.cf-kind, .cf-consent):has(:checked) :is(.cf-kind__mark, .cf-consent__box)::after {
+    clip-path: inset(0);
+  }
+
+  .cf-kind:has(:checked) {
+    border-color: var(--sweep);
+    color: var(--on);
+  }
+
+  .cf-kind:has(:checked)::before {
+    background-size: 100% 100%;
+  }
+
+  .cf-kind:has(:checked) .cf-kind__hint {
+    color: var(--hint-on);
+  }
+
+  .cf-kind:has(:checked) .cf-kind__icon {
+    rotate: 0deg;
+    scale: 1.08;
+  }
+
+  .cf-kind:has(:checked) .cf-kind__mark {
+    --tick: var(--sweep);
+    background: var(--on);
+  }
+
+  :global(.motion) .cf-kind:has(:checked) .cf-kind__icon {
+    animation: cf-hop 0.45s steps(3, jump-none);
+  }
+
+  :is(.cf-kind, .cf-consent):has(:focus-visible) {
+    outline: 3px solid var(--orange-text);
+    outline-offset: 4px;
+  }
+
+  @media (hover: hover) {
+    .cf-kind:hover {
+      translate: 0 -4px;
+    }
+    .cf-kind:hover .cf-kind__icon {
+      rotate: 0deg;
+    }
+  }
+
+  /* Phones: the check mark becomes a badge on the icon tile, so the name gets
+     the whole column ("ライブコマーサー" is one phrase and must not wrap). */
+  @media (max-width: 479px) {
+    .cf-kind {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      padding: 12px 14px 12px 12px;
+    }
+    .cf-kind__icon {
+      width: 52px;
+    }
+    .cf-kind__mark {
+      position: absolute;
+      top: calc(50% + 6px);
+      left: 46px;
+      width: 28px;
+      background: var(--white);
+    }
+  }
+
+  .cf-kind:active {
+    translate: 0;
+    scale: 0.985;
+    transition-duration: 0.1s;
+  }
+
+  .cf-field:has([aria-invalid]) :is(.cf-kind, .cf-consent) {
+    border-color: var(--error);
+  }
+
+  /* Two background rules instead of a border: the orange one draws across
+     on top of the grey one and is the focus indicator (3:1 on the tint). */
+  .cf-input {
+    --rule: var(--field);
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 0 12px;
+    border: 0;
+    border-radius: 0;
+    background:
+      linear-gradient(var(--orange-deep), var(--orange-deep)) left bottom / 0 4px no-repeat,
+      linear-gradient(var(--rule), var(--rule)) left bottom / 100% 2px no-repeat;
+    color: var(--ink);
+    font: inherit;
+    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    transition: background-size 0.6s var(--ease-mask);
+  }
+
+  .cf-input:focus {
+    outline: none;
+    background-size:
+      100% 4px,
+      100% 2px;
+  }
+
+  .cf-input[aria-invalid] {
+    --rule: var(--error);
+  }
+
+  textarea.cf-input {
+    min-height: 220px;
+    max-height: 70vh;
+    padding: 14px 16px 16px;
+    background-color: var(--white);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.8;
+    resize: vertical;
+    field-sizing: content;
+  }
+
+  .cf-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--error);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  .cf-error::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+  }
+
+  .cf-error:empty {
+    display: none;
+  }
+
+  /* Replays each time an error appears (display none → flex). */
+  :global(.motion) .cf-error {
+    animation: cf-pop 0.3s steps(3, jump-none);
+  }
+
+  .cf-count {
+    justify-self: end;
+    color: var(--muted);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cf-count[data-near] {
+    color: var(--orange-text);
+  }
+
+  .honeypot {
+    position: absolute;
+    left: -9999px;
+  }
+
+  .cf-consent {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+    padding: 14px 20px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-m);
+    background: var(--white);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.6;
+    cursor: pointer;
+  }
+
+  /* Ink tick on the brand orange (5.8:1). */
+  .cf-consent:has(:checked) .cf-consent__box {
+    background: var(--orange);
+  }
+
+  /* Stays in the accessibility tree while empty, so role="alert" announces reliably. */
+  .cf-alert:not(:empty) {
+    display: grid;
+    gap: 4px;
+    padding: 16px 20px;
+    border: 2px solid var(--error);
+    border-radius: var(--r-m);
+    background: var(--white);
+    color: var(--error);
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  .cf-alert :global(a) {
+    color: var(--ink);
+    font-family: var(--font-en), var(--font-jp);
+    text-underline-offset: 4px;
+  }
+
+  :global(.motion) .cf-alert:not(:empty) {
+    animation: fade-up 0.5s var(--ease-out);
+  }
+
+  .button.cf-submit {
+    width: 100%;
+    min-height: 72px;
+    padding-inline: 28px 12px;
+    font-size: 1.0625rem;
+    font-weight: 800;
+  }
+
+  /* 0.6× the 40×35 arrow keeps whole pixels. */
+  .cf-submit .go {
+    --go: 52px;
+    --arrow-size: 24px 21px;
+  }
+
+  .button.cf-submit[aria-disabled="true"] {
+    border-color: var(--orange-text);
+    cursor: progress;
+  }
+
+  .button.cf-submit[aria-disabled="true"]::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .cf-submit[aria-disabled="true"] .go::before {
+    opacity: 0;
+  }
+
+  :global(.motion) .cf-submit[aria-disabled="true"] .go::after {
+    animation: cf-go 0.6s steps(5, jump-none) infinite;
+  }
+
+  .cf-note {
+    font-size: 0.875rem;
+  }
+
+  .cf-done {
+    position: relative;
+    container-type: inline-size;
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+    padding: clamp(28px, 5vw, 48px);
+    border-radius: var(--r-l);
+    background: var(--ink);
+    color: var(--white);
+    scroll-margin-top: calc(var(--header-cover) + 24px);
+  }
+
+  /* Focus is moved here only to announce the result; it is not a control. */
+  .cf-done:focus {
+    outline: none;
+  }
+
+  /* Bottom left, beside the art: at the top it would run into THANK YOU. */
+  .cf-done :global(.cf-done__px) {
+    position: absolute;
+    bottom: clamp(28px, 5vw, 48px);
+    left: clamp(28px, 5vw, 48px);
+    scale: 2;
+    transform-origin: bottom left;
+  }
+
+  .cf-done__big {
+    color: var(--orange);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: clamp(2.75rem, 2rem + 4cqi, 4.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .cf-done__title {
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    line-height: 1.7;
+  }
+
+  .cf-done__art {
+    display: block;
+    justify-self: end;
+    width: min(64%, 260px);
+  }
+
+  .cf-done__art :global(img) {
+    width: 100%;
+  }
+
+  /* The wrapper hops: the img's animation list is taken by the mask reveal. */
+  :global(.motion) .cf-done__art {
+    animation: bob 0.7s steps(2, jump-none) 1.6s 4;
+  }
+
+  @media (forced-colors: active) {
+    .cf-input {
+      border-bottom: 2px solid;
+    }
+    .cf-input:focus {
+      outline: 2px solid;
+    }
+    :is(.cf-kind__mark, .cf-consent__box)::after {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+    .cf-kind:has(:checked) {
+      outline: 3px solid Highlight;
+    }
+  }
+
+  @keyframes cf-hop {
+    50% {
+      translate: 0 -10px;
+    }
+  }
+
+  @keyframes cf-pop {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+
+  @keyframes cf-go {
+    from {
+      translate: -100% 0;
+    }
+    to {
+      translate: 100% 0;
+    }
+  }
+</style>

@@ -1,0 +1,585 @@
+/* Hero: one full screen. The service number is a giant decoration over
+   the title, and the art stands on a plate that runs off the right edge. */
+/* A container, so the edge-to-edge maths uses the page width without a
+   scrollbar. The art is wider than the screen on phones. */
+.detail-hero {
+  overflow: hidden;
+  overflow: clip visible;
+  container-type: inline-size;
+}
+
+.detail-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto 1fr;
+  gap: 16px 24px;
+  min-height: calc(100svh - var(--header-h));
+  padding-block: clamp(24px, 5svh, 56px) 64px;
+}
+
+.detail-back {
+  justify-self: start;
+  padding-block: 10px;
+  margin-block: -10px;
+  font-family: var(--font-en), var(--font-jp);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+/* Its line box reaches up over the back link. */
+.detail-hero__number {
+  color: var(--orange);
+  font-family: var(--font-en), var(--font-jp);
+  font-size: clamp(8rem, 5rem + 12vw, 18rem);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  pointer-events: none;
+}
+
+.detail-hero__title {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.detail-hero__label {
+  color: var(--orange-text);
+  font-family: var(--font-en), var(--font-jp);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.detail-hero h1 {
+  font-size: clamp(2rem, 1.3rem + 3vw, 3.5rem);
+  line-height: 1.4;
+}
+
+.detail-hero__lead {
+  max-width: 34em;
+  margin-top: 8px;
+}
+
+/* The art is lifted out of its plate by 22% of its height (about 14% of
+   the width) plus up to 32px of drift: the margin keeps it off the lead. */
+.detail-visual__plate {
+  --pad: clamp(24px, 4vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-self: end;
+  gap: 16px;
+  margin-top: calc(14% + 24px);
+  padding-block: 0 var(--pad);
+  padding-inline-start: var(--pad);
+  border-radius: var(--r-xl) 0 0 var(--r-xl);
+  background: var(--tint);
+}
+
+/* --w is the art's width, centred on the plate (wider than the screen on
+   phones: the PNG's empty sides take the crop; 106cqi still fits the
+   creator art, whose drawing nearly reaches its sides); the bottom margin
+   cancels the lift. */
+.detail-visual__art {
+  --w: 106cqi;
+  --y: -22%;
+  display: block;
+  width: var(--w);
+  margin-inline-start: calc(50% - var(--w) / 2);
+  margin-bottom: calc(var(--w) * -0.147);
+  translate: 0 var(--y);
+}
+
+.detail-visual__art img {
+  width: 100%;
+}
+
+.detail-visual__plate figcaption {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.has-stat .detail-visual__plate {
+  padding-bottom: 72px;
+}
+
+@media (min-width: 768px) {
+  .detail-visual__plate {
+    margin-left: calc(100% / 12);
+  }
+  .detail-visual__art {
+    --w: 92cqi;
+  }
+  .detail-visual__plate figcaption {
+    max-width: 50%;
+  }
+  .has-stat .detail-visual__plate {
+    padding-bottom: 160px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .detail-hero__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr auto auto;
+  }
+  .detail-back {
+    grid-column: 1 / -1;
+  }
+  .detail-hero__number,
+  .detail-hero__title,
+  .detail-hero__lead {
+    grid-column: 1 / 6;
+  }
+  .detail-hero__number {
+    grid-row: 2;
+    align-self: end;
+  }
+  .detail-visual__plate {
+    grid-column: 7 / -1;
+    grid-row: 2 / 5;
+    margin-top: 0;
+    margin-left: 0;
+  }
+  .detail-visual__plate figcaption {
+    max-width: none;
+  }
+  /* Its right edge on the screen's edge, so it crosses the plate's left. */
+  .detail-visual__art {
+    --w: min(58cqi, 880px);
+    margin-inline-start: calc(100% + var(--edge) + var(--pad) - var(--w));
+  }
+}
+
+/* The stat tile overlaps the plate's spare bottom padding (the hero's own
+   64px plus part of the plate's). */
+.detail-visual__inner {
+  display: grid;
+}
+
+.detail-stat {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  width: min(100% - 16px, 520px);
+  margin-top: -104px;
+  justify-self: end;
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: var(--r-l);
+  background: var(--ink);
+  color: var(--white);
+}
+
+.detail-stat .eyebrow,
+.detail-stat__value {
+  color: var(--orange);
+}
+
+.detail-stat__value {
+  font-family: var(--font-en), var(--font-jp);
+  font-size: clamp(3.5rem, 2.4rem + 4.5vw, 6rem);
+  font-weight: 800;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+
+/* Fixed width while counting, so the unit next to it does not move. */
+[data-count] {
+  display: inline-block;
+  min-width: 2ch;
+  /* Letter spacing would make two digits wider than 2ch. */
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-stat__unit {
+  font-size: 0.32em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.detail-stat h2 {
+  font-size: 1.25rem;
+}
+
+.detail-stat__text {
+  color: var(--on-ink-muted);
+}
+
+@media (min-width: 768px) {
+  .detail-stat {
+    margin-top: -152px;
+  }
+}
+
+.detail-intro {
+  display: grid;
+  gap: 20px;
+}
+
+.detail-intro__grid {
+  display: grid;
+  gap: 32px 64px;
+}
+
+.detail-intro h2 {
+  font-size: clamp(1.75rem, 1rem + 3vw, 3.5rem);
+  line-height: 1.5;
+}
+
+.detail-intro__text {
+  display: grid;
+  align-content: end;
+  gap: 16px;
+  font-size: 1.0625rem;
+}
+
+.detail-intro__link {
+  justify-self: start;
+  margin-top: 8px;
+}
+
+@media (min-width: 960px) {
+  .detail-intro__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detail-heading {
+  margin-bottom: clamp(32px, 5vw, 56px);
+  max-width: 44em;
+}
+
+.journey__number,
+.feature__number,
+.flow__number {
+  color: var(--orange-text);
+  font-family: var(--font-en), var(--font-jp);
+  line-height: 1;
+}
+
+.feature__number,
+.flow__number {
+  font-size: 2.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Journey: an ink panel with the steps staggered along a pixel spine. */
+.journey-panel {
+  --pad: clamp(24px, 6vw, 96px);
+  padding-block: var(--pad);
+  padding-inline-end: var(--pad);
+  border-radius: 0 var(--r-xl) var(--r-xl) 0;
+  background: var(--ink);
+  color: var(--white);
+}
+
+.journey-panel :focus-visible {
+  outline-color: var(--orange);
+}
+
+.journey-panel__text {
+  color: var(--on-ink-muted);
+}
+
+.journey-wrap {
+  position: relative;
+  margin-top: 72px;
+}
+
+.journey__spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.journey {
+  display: grid;
+  gap: 88px;
+  padding-left: 32px;
+}
+
+.journey__step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 84px 28px 28px;
+  border-radius: 28px;
+  background: #1c1c1c;
+}
+
+.journey__icon {
+  position: absolute;
+  top: -56px;
+  left: 28px;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 28px;
+  background: var(--white);
+}
+
+.journey__icon img {
+  width: 96px;
+}
+
+.journey__number {
+  color: var(--orange);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.journey__step h3 {
+  font-size: 1.125rem;
+}
+
+.journey__summary {
+  color: var(--on-ink-muted);
+}
+
+.journey__step ul {
+  display: grid;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px solid rgb(255 255 255 / 0.16);
+  font-size: 0.9375rem;
+}
+
+.journey__step ul li {
+  display: flex;
+  gap: 10px;
+}
+
+.journey__step ul li::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 1px;
+  margin-top: 0.95em;
+  background: var(--orange);
+}
+
+@media (min-width: 768px) {
+  .journey {
+    grid-template-columns: 1fr 1fr;
+    gap: 96px 64px;
+    padding-left: 0;
+  }
+  .journey__step:nth-child(even) {
+    margin-top: 64px;
+  }
+  .journey__spine {
+    left: calc(50% - 4px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .journey {
+    column-gap: 120px;
+  }
+  .journey__step:nth-child(even) {
+    margin-top: 120px;
+  }
+}
+
+/* Features: a bento whose first tile is the orange one. */
+.features {
+  display: grid;
+  gap: 16px;
+}
+
+.feature {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: clamp(24px, 3vw, 40px);
+  border-radius: var(--r-m);
+  background: var(--white);
+}
+
+.feature h3 {
+  font-size: 1.125rem;
+}
+
+.feature__text {
+  color: var(--muted);
+}
+
+/* Ink on the brand orange (5.8:1), so the site keeps a single orange. */
+.feature:first-child {
+  align-content: end;
+  background: var(--orange);
+  color: var(--ink);
+}
+
+.feature:first-child .feature__number,
+.feature:first-child .feature__text {
+  color: var(--ink);
+}
+
+.feature:first-child h3 {
+  font-size: clamp(1.375rem, 1rem + 1.4vw, 2rem);
+}
+
+@media (min-width: 1024px) {
+  .features {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .feature:first-child {
+    grid-column: 1 / 7;
+    grid-row: 1 / 3;
+    min-height: 360px;
+  }
+  .feature:nth-child(n + 2) {
+    grid-column: 7 / -1;
+  }
+  .features:has(> :nth-child(4)) .feature:nth-child(3) {
+    grid-column: 7 / 10;
+  }
+  .features:has(> :nth-child(4)) .feature:nth-child(4) {
+    grid-column: 10 / -1;
+    grid-row: 2;
+  }
+}
+
+/* Flow: steps joined by a pixel line, across on desktops, down on phones. */
+.flow-wrap {
+  position: relative;
+}
+
+.flow__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.flow {
+  display: grid;
+  gap: 40px 24px;
+  padding-left: 32px;
+}
+
+.flow__step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 20px;
+  align-content: start;
+  align-items: start;
+}
+
+.flow__step h3 {
+  font-size: 1.125rem;
+  margin-bottom: 6px;
+}
+
+@media (min-width: 1024px) {
+  .flow__line.pixel-line {
+    --to: 24px 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    height: 8px;
+    background-image: linear-gradient(90deg, var(--orange) 8px, transparent 0);
+    background-size: 24px 8px;
+  }
+  .flow {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 40px 0 0;
+  }
+  .flow__step {
+    grid-template-columns: 1fr;
+  }
+}
+
+.coming-soon {
+  display: grid;
+  gap: 32px;
+}
+
+.coming-soon ul {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .coming-soon ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .coming-soon ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.coming-soon li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px;
+  border-radius: 20px;
+  background: var(--white);
+  font-weight: 700;
+}
+
+.coming-soon__badge {
+  flex: none;
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  white-space: nowrap;
+  color: var(--orange-text);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* The whole panel is one link; the sticker sits on its top edge. */
+.detail-cta.entry {
+  --pad: clamp(32px, 7vw, 88px);
+  gap: 28px;
+  justify-items: start;
+  padding-block: calc(var(--sticker) * 0.55 + var(--pad) * 0.5) var(--pad);
+  padding-inline-start: var(--pad);
+  border-radius: var(--r-xl) 0 0 var(--r-xl);
+}
+
+.detail-cta.entry .entry__sticker {
+  right: calc(var(--edge) + var(--pad));
+}
+
+.detail-cta__copy {
+  display: grid;
+  gap: 14px;
+  max-width: 36em;
+}
+
+.detail-cta h2 {
+  font-size: clamp(1.75rem, 1.1rem + 2cqi, 2.75rem);
+  line-height: 1.4;
+}
+
+.detail-cta__go {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-weight: 700;
+}
+
+@media (min-width: 960px) {
+  .detail-cta.entry {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    column-gap: 64px;
+  }
+}

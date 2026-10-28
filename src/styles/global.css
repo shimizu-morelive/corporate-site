@@ -1,0 +1,868 @@
+/* Design tokens. Colors come from the CEO's business card (orange #F75A06 on white). */
+:root {
+  --white: #ffffff;
+  --tint: #fde7d2;
+  /* A 2px pixel every 16px: the tint reads as pixel-art paper, not a flat fill. */
+  --tint-texture: conic-gradient(from 270deg at 2px 2px, rgb(179 61 0 / 0.1) 25%, transparent 0) 0 0 / 16px 16px;
+  --ink: #111111;
+  --muted: #545454;
+  --line: #ecd9c6;
+  /* Form field rules: 4.29:1 on white, 3.58:1 on the tint. */
+  --field: #7a7a7a;
+  /* #F75A06 is only 3.27:1 on white and 2.73:1 on the tint: shapes and large
+     type on white only. Small orange text uses --orange-text (5.86:1 white, 4.89:1 tint);
+     large orange type and focus rules on the tint use --orange-deep (3.6:1). */
+  --orange: #f75a06;
+  --orange-text: #b33d00;
+  --orange-deep: #d64b00;
+  --success: #315f4b;
+  --error: #934a3d;
+
+  --gutter: clamp(16px, 5vw, 48px);
+  --container: 1120px;
+  --section-space: clamp(88px, 12vw, 160px);
+  /* Fixed so the hero can fill exactly the rest of the screen. Re-measure at
+     768px and 800px wide if the logo or the nav changes. */
+  --header-h: 64px;
+  /* The bar floats this far down once the page is scrolled (neuealle). */
+  --header-drop: 20px;
+  --header-cover: calc(var(--header-h) + var(--header-drop));
+  /* cqi is resolved where the token is used, against that element's container. */
+  --sticker: clamp(140px, 18cqi, 280px);
+  /* 40×35 on a 5px grid: drawn at 0.4×, 0.6× or 1× so every cell is whole pixels. */
+  --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 35'%3E%3Cpath d='M20 0h5v5h-5zM20 5h10v5H20zM20 10h15v5H20zM0 15h40v5H0zM20 20h15v5H20zM20 25h10v5H20zM20 30h5v5h-5z'/%3E%3C/svg%3E");
+  --r-xl: clamp(36px, 5vw, 72px);
+  --r-l: clamp(28px, 3.5vw, 56px);
+  --r-m: clamp(20px, 2.4vw, 40px);
+  --footer-r: clamp(32px, 5vw, 72px);
+  --on-ink-muted: rgb(255 255 255 / 0.72);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-mask: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-h: 56px;
+    --header-drop: 0px;
+  }
+}
+
+/* Without JS the phone nav is a second row under the logo. */
+@media (max-width: 767px) {
+  :root:not(.js) {
+    --header-h: 104px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Only after load (set in Base.astro): a smooth jump to a #fragment on load
+   aims at a target that still moves while fonts settle. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-smooth] {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-jp);
+  font-size: 1rem;
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+  line-break: strict;
+  text-wrap: pretty;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keeps the footer at the bottom of short pages such as 404. */
+main {
+  flex: 1;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+  font-feature-settings: "palt";
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+[id] {
+  scroll-margin-top: calc(var(--header-cover) + 24px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--orange-text);
+  outline-offset: 3px;
+}
+
+/* Japanese phrases from src/lib/phrase.ts: break only between phrases. */
+.phrase {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* Emphasis only appears in headings of 22px bold or more (large text), where
+   the brand orange passes 3:1 on white; on the tint it needs --orange-deep. */
+.phrase em {
+  font-style: normal;
+  color: var(--orange);
+}
+
+.container {
+  width: min(var(--container), 100% - 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+.section {
+  position: relative;
+  padding-block: var(--section-space);
+  /* Art may cross into the section above, but nothing may widen the page.
+     hidden is the fallback for Safari before 16. */
+  overflow: hidden;
+  overflow: clip visible;
+  container-type: inline-size;
+}
+
+/* The footer's rounded top overlaps the last section. */
+main > .section:last-child {
+  padding-bottom: calc(var(--section-space) + var(--footer-r));
+}
+
+/* Plates and panels that run to the screen edge. --edge is the distance from
+   the .container to the edge (cqi is the section's width, so this also works
+   inside grid areas, where % would mean the area). Content keeps its column. */
+.bleed-l,
+.bleed-r {
+  --edge: max((100cqi - var(--container)) / 2, var(--gutter));
+}
+
+.bleed-l {
+  margin-inline-start: calc(-1 * var(--edge));
+  padding-inline-start: calc(var(--edge) + var(--pad, 0px));
+}
+
+.bleed-r {
+  margin-inline-end: calc(-1 * var(--edge));
+  padding-inline-end: calc(var(--edge) + var(--pad, 0px));
+}
+
+/* An orange block peeking out behind a panel. z-index -1 puts it behind the
+   host only while the host makes no stacking context: never give a slab host
+   isolation, a z-index or overflow:hidden. */
+.slab {
+  position: relative;
+}
+
+.slab::before {
+  content: "";
+  position: absolute;
+  inset: -24px 0 auto 38%;
+  z-index: -1;
+  height: 160px;
+  border-radius: inherit;
+  background: var(--orange);
+}
+
+/* Dotted pixel path: 8px squares every 24px. */
+.pixel-line {
+  --to: 0 24px;
+  display: block;
+  width: 8px;
+  background: linear-gradient(var(--orange) 8px, transparent 0) 0 0 / 8px 24px;
+}
+
+/* Large statement that fills phrase by phrase as it scrolls by (see fill()
+   in src/lib/phrase.ts). */
+.statement {
+  font-weight: 800;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt";
+}
+
+.section--tint {
+  background: var(--tint-texture), var(--tint);
+}
+
+/* Two white sections in a row would otherwise show double spacing. */
+.section:not(.section--tint) + .section:not(.section--tint) {
+  padding-top: 0;
+}
+
+/* English label above Japanese headings. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-en), var(--font-jp);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 24px;
+  height: 1px;
+  background: var(--orange);
+}
+
+.heading {
+  display: grid;
+  gap: 16px;
+}
+
+/* Section headings lead with the English word, large and light; the
+   Japanese title sits under it as a subhead. */
+.heading > .eyebrow {
+  display: block;
+  font-size: clamp(2rem, 1.4rem + 3vw, 4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.heading > .eyebrow::before {
+  content: none;
+}
+
+.heading :is(h1, h2) {
+  font-size: clamp(1.0625rem, 0.98rem + 0.4vw, 1.3125rem);
+  letter-spacing: 0.1em;
+}
+
+.lead {
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  line-height: 1.75;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* An orange fill wipes in from the left on hover. */
+.button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 14px 24px 14px 28px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--orange-text);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.55s var(--ease-mask);
+}
+
+.button--light {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.button:focus-visible {
+  border-color: var(--orange-text);
+  color: var(--white);
+}
+
+.button:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    border-color: var(--orange-text);
+    color: var(--white);
+  }
+  .button:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:disabled::before {
+  transform: scaleX(0);
+}
+
+/* The round pixel arrow: two copies of the mask, one leaves on the right
+   while the other comes in from the left. Markup is always
+   <span class="go" aria-hidden="true"></span>. */
+.go {
+  --go: clamp(72px, 7cqi, 104px);
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--go);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--go-bg, var(--ink));
+  color: var(--go-fg, var(--white));
+  transition:
+    background-color 0.4s var(--ease-out),
+    color 0.4s var(--ease-out),
+    scale 0.5s var(--ease-out);
+}
+
+.go::before,
+.go::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  -webkit-mask: var(--arrow) center / var(--arrow-size, 40px 35px) no-repeat;
+  mask: var(--arrow) center / var(--arrow-size, 40px 35px) no-repeat;
+  /* Pixels move in steps. */
+  transition: translate 0.45s steps(5, jump-none);
+}
+
+.go::after {
+  translate: -100% 0;
+}
+
+:is(a, button):is(:focus-visible, :active) .go {
+  background: var(--go-bg-on, var(--go-bg, var(--ink)));
+  color: var(--go-fg-on, var(--go-fg, var(--white)));
+}
+
+:is(a, button):is(:focus-visible, :active) .go::before {
+  translate: 100% 0;
+}
+
+:is(a, button):is(:focus-visible, :active) .go::after {
+  translate: 0;
+}
+
+@media (hover: hover) {
+  :is(a, button):hover .go {
+    background: var(--go-bg-on, var(--go-bg, var(--ink)));
+    color: var(--go-fg-on, var(--go-fg, var(--white)));
+  }
+  :is(a, button):hover .go::before {
+    translate: 100% 0;
+  }
+  :is(a, button):hover .go::after {
+    translate: 0;
+  }
+}
+
+.button:has(.go) {
+  gap: 12px;
+  padding-block: 10px;
+  padding-inline: 22px 10px;
+}
+
+.button .go {
+  --go: 36px;
+  --arrow-size: 16px 14px;
+  --go-bg: var(--orange);
+  --go-fg: var(--ink);
+  --go-bg-on: var(--white);
+  --go-fg-on: var(--ink);
+}
+
+.button--light .go {
+  --go-bg: var(--ink);
+  --go-fg: var(--white);
+}
+
+/* A whole panel that is one link: a second colour sweeps up from the bottom.
+   Never combine with .slab: both use ::before, and this one needs isolation. */
+.entry {
+  --bg: var(--white);
+  --fg: var(--ink);
+  --sub: var(--muted);
+  --accent: var(--orange);
+  --sweep: var(--ink);
+  --fg-on: var(--white);
+  --sub-on: var(--on-ink-muted);
+  --accent-on: var(--orange);
+  --go-bg: var(--ink);
+  --go-fg: var(--white);
+  --go-bg-on: var(--orange);
+  --go-fg-on: var(--ink);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  border-radius: var(--r-l);
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.4s var(--ease-out),
+    translate 0.5s var(--ease-out),
+    scale 0.5s var(--ease-out);
+}
+
+.entry::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* The fill grows inside the rounded box: a scaled box would flatten its
+     corners into a square bar below the panel's round ones. */
+  border-radius: inherit;
+  background: linear-gradient(var(--sweep), var(--sweep)) bottom / 100% 0 no-repeat;
+  transition: background-size 0.6s var(--ease-mask);
+}
+
+/* Ink on the brand orange (5.8:1). */
+.entry--orange {
+  --bg: var(--orange);
+  --sub: var(--ink);
+  --accent: var(--ink);
+  --go-fg: var(--orange);
+}
+
+.entry--ink {
+  --bg: var(--ink);
+  --fg: var(--white);
+  --sub: var(--on-ink-muted);
+  --sweep: var(--orange);
+  --fg-on: var(--ink);
+  --sub-on: var(--ink);
+  --accent-on: var(--ink);
+  --go-bg: var(--orange);
+  --go-fg: var(--ink);
+  --go-bg-on: var(--ink);
+  --go-fg-on: var(--orange);
+}
+
+.entry__sub {
+  color: var(--sub);
+  transition: color 0.4s var(--ease-out);
+}
+
+.entry__accent {
+  color: var(--accent);
+  transition: color 0.4s var(--ease-out);
+}
+
+.entry:focus-visible {
+  outline: 3px solid var(--orange-text);
+  outline-offset: 6px;
+}
+
+/* A white tile with an icon, poking out of the panel's top edge. */
+.entry__sticker {
+  position: absolute;
+  top: calc(var(--sticker) * -0.45);
+  right: var(--pad, 24px);
+  display: grid;
+  place-items: center;
+  width: var(--sticker);
+  aspect-ratio: 1;
+  border: 4px solid var(--ink);
+  border-radius: 28%;
+  background: var(--white);
+  rotate: -6deg;
+  transition:
+    rotate 0.45s steps(3, jump-none),
+    translate 0.45s steps(3, jump-none),
+    scale 0.45s steps(3, jump-none);
+}
+
+.entry--ink .entry__sticker {
+  rotate: 6deg;
+}
+
+/* At most 232px: still sharp on 2x screens from the smallest (470px) icon. */
+.entry__sticker img {
+  width: 83%;
+}
+
+.entry:is(:focus-visible, :active) {
+  color: var(--fg-on);
+  translate: 0 -6px;
+}
+
+.entry:is(:focus-visible, :active)::before {
+  background-size: 100% 100%;
+}
+
+.entry:is(:focus-visible, :active) .entry__sub {
+  color: var(--sub-on);
+}
+
+.entry:is(:focus-visible, :active) .entry__accent {
+  color: var(--accent-on);
+}
+
+.entry:is(:focus-visible, :active) .go {
+  scale: 1.12;
+}
+
+.entry:is(:focus-visible, :active) .entry__sticker {
+  rotate: 0deg;
+  translate: 0 -10px;
+  scale: 1.06;
+}
+
+@media (hover: hover) {
+  .entry:hover {
+    color: var(--fg-on);
+    translate: 0 -6px;
+  }
+  .entry:hover::before {
+    background-size: 100% 100%;
+  }
+  .entry:hover .entry__sub {
+    color: var(--sub-on);
+  }
+  .entry:hover .entry__accent {
+    color: var(--accent-on);
+  }
+  .entry:hover .go {
+    scale: 1.12;
+  }
+  .entry:hover .entry__sticker {
+    rotate: 0deg;
+    translate: 0 -10px;
+    scale: 1.06;
+  }
+}
+
+/* Press: after both lists, so it wins over the lift. */
+.entry:active {
+  translate: 0;
+  scale: 0.985;
+  transition-duration: 0.1s;
+}
+
+.entry:active::before {
+  transition-duration: 0.2s;
+}
+
+.entry:active .go {
+  scale: 0.94;
+}
+
+/* Decorative brand tab on the left screen edge (neuealle). Hidden on phones,
+   where it would cover the gutter. It narrows so it never reaches the
+   container. */
+.side-tab {
+  /* cqw, not cqi: in vertical writing the inline axis is the height. */
+  --tab: clamp(24px, (100cqw - var(--container)) / 2 - 24px, 60px);
+  position: absolute;
+  top: calc(-0.75 * var(--section-space));
+  left: 0;
+  display: none;
+  place-items: center;
+  width: var(--tab);
+  height: clamp(260px, 41vw, 590px);
+  /* Turned half a turn so it reads bottom to top: these left corners end up
+     on the right. */
+  border-radius: 999px 0 0 999px;
+  background: var(--orange);
+  color: var(--ink);
+  font-family: var(--font-en), var(--font-jp);
+  font-size: calc(var(--tab) * 0.5);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .side-tab {
+    display: grid;
+  }
+}
+
+/* Motion. html.motion is set in the head only when motion is allowed, so
+   without JS or with reduced motion everything is simply shown. */
+.rise {
+  display: block;
+}
+
+.heading > :nth-child(2) {
+  --i: 1;
+}
+
+.heading > :nth-child(3) {
+  --i: 2;
+}
+
+@media screen {
+  .motion :is(.fade, .rise, .mask, .mask-x):not(.is-in) {
+    opacity: 0;
+  }
+  .motion :is(.fade, .rise, .mask, .mask-x).is-in {
+    animation-delay: calc((var(--base, 0) + var(--i, 0)) * 90ms);
+    animation-fill-mode: backwards;
+  }
+  .motion .fade.is-in {
+    animation-name: fade-up;
+    animation-duration: 0.9s;
+    animation-timing-function: var(--ease-out);
+  }
+  .motion .rise.is-in {
+    animation-name: rise;
+    animation-duration: 1s;
+    animation-timing-function: var(--ease-out);
+  }
+  .motion .mask.is-in {
+    animation-name: mask;
+    animation-duration: 1.2s;
+    animation-timing-function: var(--ease-mask);
+  }
+  /* Type moves smoothly, pixels move in steps. */
+  .motion img.mask.is-in {
+    animation-duration: 0.72s;
+    animation-timing-function: steps(8, jump-end);
+  }
+  .motion .mask-x.is-in {
+    animation-name: mask-x;
+    animation-duration: 1.2s;
+    animation-timing-function: var(--ease-mask);
+  }
+  .motion .bleed-l.mask-x.is-in {
+    animation-name: mask-x-l;
+  }
+  /* While the panel is clipped it is a stacking context and the slab would
+     paint over it, so the slab waits for the clip to end. */
+  .motion .mask-x.slab.is-in::before {
+    animation: fade 0.9s var(--ease-out) 1.35s backwards;
+  }
+
+  .motion [data-fill] > span {
+    opacity: clamp(0.16, calc((var(--p, 0) * 1.25 - var(--k)) * 6), 1);
+  }
+
+  /* Ambient accents: short, finite, replayed when they scroll back in. */
+  .motion .pixels.is-playing path {
+    animation: px-flow 0.9s steps(3) 5;
+  }
+  .motion .pixel-line.is-playing {
+    animation: px-line 0.9s steps(3) 5;
+  }
+  .motion .pixels.is-playing g {
+    animation: px-blink 1.25s steps(1) 4;
+  }
+  .motion .pixels.is-playing g + g {
+    animation-delay: -0.625s;
+  }
+}
+
+/* Wrappers only, never the img: the img's own animation list is taken by the
+   mask reveal. */
+@supports (animation-timeline: view()) {
+  .motion :is(.hero__prop, .about__art, .svc__art, .tiktok-entry__art, .detail-visual__art) {
+    animation: drift linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+}
+
+@keyframes drift {
+  from {
+    translate: 0 calc(var(--y, 0px) + 32px);
+  }
+  to {
+    translate: 0 calc(var(--y, 0px) - 32px);
+  }
+}
+
+@keyframes px-flow {
+  from {
+    stroke-dashoffset: 24;
+  }
+}
+
+@keyframes px-line {
+  to {
+    background-position: var(--to);
+  }
+}
+
+@keyframes px-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes bob {
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+/* Moving the clip with the text keeps its bottom edge still, so the line
+   rises out of a mask without wrapper markup. */
+@keyframes rise {
+  from {
+    transform: translateY(100%);
+    clip-path: inset(-0.2em -0.2em 100% -0.2em);
+  }
+  to {
+    clip-path: inset(-0.2em);
+  }
+}
+
+@keyframes mask {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The negative insets leave room for art poking out of the panel; the
+   panel's own radius shapes the corners. */
+@keyframes mask-x {
+  from {
+    clip-path: inset(-100vh -100vw -100vh 100%);
+  }
+  to {
+    clip-path: inset(-100vh -100vw -100vh 0);
+  }
+}
+
+@keyframes mask-x-l {
+  from {
+    clip-path: inset(-100vh 100% -100vh -100vw);
+  }
+  to {
+    clip-path: inset(-100vh 0 -100vh -100vw);
+  }
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: vt-out 0.3s var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-in 0.6s var(--ease-out) both;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

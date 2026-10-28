@@ -1,0 +1,127 @@
+---
+import { getEntry } from "astro:content";
+import Base from "../layouts/Base.astro";
+import { phrase } from "../lib/phrase";
+
+const site = (await getEntry("site", "site"))!.data;
+const privacy = (await getEntry("privacy", "privacy"))!.data;
+---
+
+<Base title={privacy.meta.title} description={privacy.meta.description}>
+  <section class="section privacy" aria-labelledby="privacy-title">
+    <span class="side-tab" aria-hidden="true" lang="en">{site.hero.brand}</span>
+    <div class="container privacy__inner">
+      <div class="privacy__head">
+        <div class="heading">
+          <p class="eyebrow rise" lang="en">{privacy.eyebrow}</p>
+          <h1 id="privacy-title" class="rise">{privacy.title}</h1>
+        </div>
+        <p class="privacy__lead phrase fade" set:html={phrase(privacy.lead)} />
+        <p class="muted fade" style="--i:1">{privacy.updated}</p>
+      </div>
+      <div class="privacy__body">
+        {
+          privacy.sections.map((s) => (
+            <section class="privacy__section">
+              <h2 class="phrase" set:html={phrase(s.heading)} />
+              {s.body.map((text) => (
+                <p>{text}</p>
+              ))}
+              {s.items && (
+                <ul>
+                  {s.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              )}
+              {s.links && (
+                <p class="privacy__links">
+                  {s.links.map((l) => (
+                    <a href={l.href}>{l.label}</a>
+                  ))}
+                </p>
+              )}
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .privacy {
+    padding-top: clamp(40px, 6vw, 96px);
+  }
+
+  .privacy .side-tab {
+    top: 24px;
+  }
+
+  .privacy__inner {
+    display: grid;
+    gap: 48px 24px;
+  }
+
+  .privacy__head {
+    display: grid;
+    align-content: start;
+    gap: 20px;
+  }
+
+  .privacy__lead {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+
+  .privacy__body {
+    display: grid;
+    gap: 40px;
+    max-width: 44rem;
+  }
+
+  .privacy__section {
+    display: grid;
+    gap: 12px;
+    line-height: 1.9;
+  }
+
+  .privacy__section h2 {
+    font-size: 1.125rem;
+  }
+
+  .privacy__section ul {
+    padding-left: 1.25em;
+    list-style: disc;
+  }
+
+  .privacy__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 24px;
+  }
+
+  .privacy__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--orange-text);
+    text-underline-offset: 4px;
+  }
+
+  @media (min-width: 1024px) {
+    .privacy__inner {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+    .privacy__head {
+      position: sticky;
+      top: calc(var(--header-cover) + 40px);
+      grid-column: 1 / 6;
+    }
+    .privacy__body {
+      grid-column: 6 / -1;
+    }
+  }
+</style>

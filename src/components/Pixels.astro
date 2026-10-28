@@ -1,0 +1,51 @@
+---
+// Pixel motif drawn at 1:1 so every square lands on whole pixels. A trail `d`
+// uses only H/V segments whose lengths are multiples of 24, with coordinates
+// ending in 4 (the centre of an 8px cell); never an h0 subpath, which WebKit
+// draws without its square cap. `squares` are 8px cells, split into two groups
+// that blink in turn.
+interface Props {
+  d?: string;
+  squares?: [number, number][];
+  width: number;
+  height: number;
+  class?: string;
+}
+
+const { d, squares = [], width, height, class: className } = Astro.props;
+---
+
+<svg class:list={["pixels", className]} width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" focusable="false">
+  {d && <path d={d} />}
+  {
+    squares.length > 0 &&
+      [0, 1].map((g) => (
+        <g>
+          {squares
+            .filter((_, i) => i % 2 === g)
+            .map(([x, y]) => (
+              <rect x={x} y={y} width="8" height="8" />
+            ))}
+        </g>
+      ))
+  }
+</svg>
+
+<style>
+  .pixels {
+    display: block;
+    max-width: none;
+    overflow: visible;
+    pointer-events: none;
+    fill: var(--orange);
+    shape-rendering: crispEdges;
+  }
+
+  path {
+    fill: none;
+    stroke: var(--orange);
+    stroke-width: 8;
+    stroke-linecap: square;
+    stroke-dasharray: 0 24;
+  }
+</style>

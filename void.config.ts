@@ -2,9 +2,10 @@ import { defineConfig } from "void/config";
 
 export default defineConfig({
   cloudflare: {
-    // Same Worker name as the current site, so the existing RESEND_API_KEY
-    // secret and the more-live.com custom domain stay attached on deploy.
-    name: "more-live-corporate-site",
+    // The Worker that Cloudflare's Git build deploys main to (its check runs
+    // name it), so the RESEND_API_KEY secret and the more-live.com custom
+    // domain stay attached. The old package.json name was not the Worker name.
+    name: "corporate-site",
     compatibility_date: "2026-10-01",
     compatibility_flags: ["nodejs_als", "nodejs_compat"],
     // Secrets are managed in the Cloudflare dashboard; never wipe them on deploy.

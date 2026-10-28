@@ -1,0 +1,31 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="ページが見つかりません | 株式会社モアライブ" noindex>
+  <section class="section not-found">
+    <div class="container not-found__inner">
+      <p class="eyebrow" lang="en">404 NOT FOUND</p>
+      <h1>ページが見つかりません</h1>
+      <p class="muted">お探しのページは、移動したか削除された可能性があります。</p>
+      <a class="button" href="/">
+        <span>トップページへ</span>
+        <span class="go" aria-hidden="true"></span>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .not-found__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: start;
+    gap: 20px;
+  }
+
+  .not-found h1 {
+    font-size: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+  }
+</style>

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "VOID_CLOUDFLARE_DEPLOY_BUILD=1 astro build",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "oxlint"
@@ -17,6 +17,7 @@
     "@astrojs/cloudflare": "^14.4.2",
     "@cloudflare/workers-types": "^5.20261026.1",
     "astro": "^7.4.2",
+    "budoux": "^0.10.1",
     "oxlint": "^1.89.0",
     "typescript": "^6",
     "void": "^1.2.1"

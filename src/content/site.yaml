@@ -1,0 +1,122 @@
+# サイト全体の文言。改行させたい位置には \n を入れる（それ以外の改行は自動で調整される）。
+site:
+  meta:
+    title: TikTok Shop ライブコマース運営・販売支援 | 株式会社モアライブ
+    description: TikTok Shopを通じて、メーカー・小売事業者、消費者、ライブコマーサーをつなぐ株式会社モアライブのコーポレートサイトです。
+  companyName: 株式会社モアライブ
+  # スマホのメニューボタンの読み上げ名
+  menuLabel: メニュー  # 仮の文言（要確認）
+  nav:
+    - { label: ABOUT, href: "/#about" }
+    - { label: SERVICE, href: "/#service" }
+    - { label: CONTACT, href: "/contact" }
+    - { label: COMPANY, href: "/#company" }
+
+  hero:
+    brand: More Live !!!
+    title: "TikTok Shopでの売上づくりを、\n企画から販売まで一貫支援。"
+    # 見出しの中でオレンジにする言葉
+    emphasis: [TikTok Shop]
+    about: "モアライブは、TikTok Shopを通じて、\nメーカー・小売事業者、消費者、ライブコマーサーをつなぐ会社です。"
+    # トップのライブ画面風の3枚。link は画面下の商品カード（そのままリンクになる）、
+    # comments は画面に流れる飾りのコメント（読み上げない）
+    messages:
+      - lead: メーカーには、
+        text: 新しい販売チャネルを。
+        link: { label: メーカー・小売事業者の方へ, href: /service/sales-support }
+        comments: [はじめまして！, どんな商品ですか？, 使い方が気になる]  # 仮の文言（要確認）
+      - lead: 消費者には、
+        text: 楽しい購買体験を。
+        link: { label: TikTok Shopとは, href: /tiktok-shop }  # 仮の文言（要確認）
+        comments: [見ているだけで楽しい, ほかの色もありますか？, ♡♡♡]  # 仮の文言（要確認）
+      - lead: ライブコマーサーには、
+        text: 売れる商品と活躍できる場所を。
+        link: { label: ライブコマーサーの方へ, href: /service/creator-management }
+        comments: [配信はじまった！, その商品、気になる, もう一回見せてほしい]  # 仮の文言（要確認）
+
+  about:
+    eyebrow: ABOUT US
+    title: 私たちについて
+    lead: TikTok Shopから、ライブコマースをもっと身近に。
+    body: モアライブは、TikTok Shopを中心に、ライブ配信とショート動画を活用した販売支援を行っています。商品やブランドの理解から、企画、キャスティング、集客、配信、販売、改善までを一貫して支援します。
+    conclusion: TikTok Shopを、一時的な販路ではなく、継続して育つ販売チャネルへ。
+    image: ../assets/illustrations/about.png
+    tiktok:
+      eyebrow: WHY TIKTOK SHOP
+      title: TikTok Shopの特徴
+      text: 動画やLIVEから、商品との新しい出会いをつくる販売チャネルです。
+      more: VIEW MORE
+      points: [ショッピング動画, LIVE配信, 商品ショーケース, アフィリエイト]  # 仮の文言（要確認）
+
+  service:
+    eyebrow: SERVICE
+    title: 事業内容
+    intro: "ライブコマースを、継続して売れる販売チャネルへ。\n3つの事業を通じて、商品と人が出会う仕組みをつくります。"
+    more: 詳しく見る
+
+  serviceDetail:
+    back: SERVICE一覧へ
+    numberPrefix: SERVICE
+    stepPrefix: STEP
+    tiktok: TikTok Shopの仕組みを見る  # 仮の文言（要確認）
+
+  contact:
+    eyebrow: CONTACT
+    title: お問い合わせ
+    invitation: TikTok Shopを、一緒に盛り上げませんか。
+    lead: モアライブは、TikTok Shopを一緒に盛り上げてくれるパートナーを探しています。
+    description: 商品やブランドの新しい販売方法を探している方、ライブコマースを仕事にしたい方、新しい企画に取り組みたい方。まだ具体的な相談内容が固まっていなくても構いません。
+    closing: まずは、今考えていることをお気軽にお聞かせください。
+    email: info@more-live.com
+    form:
+      categoryLabel: お問い合わせ種別
+      categoryPlaceholder: 選択してください
+      # 問い合わせ API が受け付ける値と同じにしておく（変えるときは src/pages/api/contact.ts も）
+      #（順番を変えるときは src/components/ContactForm.astro の kinds と categoryHints も）
+      categories: [メーカー・小売事業者, ライブコマーサー, その他]
+      organizationLabel: 会社名・活動名
+      nameLabel: お名前
+      emailLabel: メールアドレス
+      messageLabel: お問い合わせ内容
+      required: 必須
+      consent: 入力内容を確認し、送信することに同意します。
+      submit: お問い合わせを送信する
+      sending: 送信しています…
+      success: お問い合わせを送信しました。内容を確認のうえ、ご連絡します。
+      failure: 送信に失敗しました。時間をおいて再度お試しください。
+      note: 送信された内容は、お問い合わせへの対応にのみ使用します。
+      # {link} の位置に privacyLabel のリンク（プライバシーポリシーのページ）が入る
+      privacy: 詳しくは{link}をご覧ください。 # 仮の文言（要確認）
+      privacyLabel: プライバシーポリシー # 仮の文言（要確認）
+      # 種別カードの補足（categories と同じ順番） # 仮の文言（要確認）
+      categoryHints: [商品の販売やブランドのご相談, ライブ配信の活動やご所属のご相談, 取材・協業・そのほかのご相談] # 仮の文言（要確認）
+      # 入力チェックの文言。{n} は件数に置き換わる # 仮の文言（要確認）
+      errors:
+        category: お問い合わせ種別を選んでください。
+        name: お名前を入力してください。
+        email: メールアドレスを入力してください。
+        emailFormat: メールアドレスの形式を確認してください（例：name@example.com）。
+        message: お問い合わせ内容を入力してください。
+        consent: 送信への同意にチェックを入れてください。
+        summary: 入力内容を確認してください（{n}件）。
+      mailFallback: "メールでも受け付けています：" # 仮の文言（要確認）
+      noscript: このフォームはJavaScriptで送信します。お使いの環境で動かない場合は、メールでお問い合わせください。 # 仮の文言（要確認）
+      done: THANK YOU # 仮の文言（要確認）
+      again: 別のお問い合わせを送る # 仮の文言（要確認）
+
+  company:
+    eyebrow: COMPANY
+    title: 会社概要
+    rows:
+      - { term: 会社名, lines: [株式会社モアライブ] }
+      # 所在地は名刺の住所と食い違っているため、公開前に確認する
+      - { term: 所在地, lines: ["〒104-0053 東京都中央区晴海5-6-7", PARK-T-3013] }
+      - { term: 代表取締役, lines: [清水 美希] }
+      - { term: 設立, lines: [2026年] }
+      - { term: 事業内容, lines: [ライブコマースチャンネルの企画・運営, 商品の委託販売・販売支援, ライブコマーサーのマネジメント] }
+      - { term: お問い合わせ, lines: [info@more-live.com], email: true }
+
+  footer:
+    copyright: © 2026 株式会社モアライブ All Rights Reserved.
+    privacy: プライバシーポリシー # 仮の文言（要確認）
+    toTop: ページ上部へ

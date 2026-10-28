@@ -1,0 +1,19 @@
+---
+// Placeholder until the logo is chosen: the business card's orange wordmark.
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<span class="logo">{name}</span>
+
+<style>
+  .logo {
+    color: var(--orange);
+    font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+</style>

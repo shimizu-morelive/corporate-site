@@ -1,0 +1,775 @@
+---
+import { Font } from "astro:assets";
+import { getEntry } from "astro:content";
+import Logo from "../components/Logo.astro";
+import { splitBang } from "../lib/phrase";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const site = (await getEntry("site", "site"))!.data;
+const title = Astro.props.title ?? site.meta.title;
+const description = Astro.props.description ?? site.meta.description;
+// With build.format "file", the pathname ends in .html (index.html on the top page).
+const canonical = new URL(Astro.url.pathname.replace(/(index)?\.html$/, ""), Astro.site);
+const [word, bang] = splitBang(site.hero.brand);
+// The contact item is shown last, as the header's call to action.
+const cta = site.nav.find((item) => item.href.startsWith("/contact"));
+const links = site.nav.filter((item) => item !== cta);
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {Astro.props.noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.companyName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!Astro.props.noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:locale" content="ja_JP" />
+    {/* public/og.png: the hero as a 1200x630 card, one for every page. */}
+    <meta property="og:image" content={new URL("/og.png", Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.hero.brand} ${site.hero.title.replace("\n", "")}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" />
+    <script is:inline>
+      const root = document.documentElement;
+      root.classList.add("js");
+      // Show the plain phone nav if the menu script never runs.
+      setTimeout(() => root.dataset.navReady === undefined && root.classList.remove("js"), 3000);
+      if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+        root.classList.add("motion");
+        // Show everything if the motion script never runs.
+        setTimeout(() => root.dataset.motionReady === undefined && root.classList.remove("motion"), 3000);
+      }
+    </script>
+    <Font cssVariable="--font-jp" />
+    <Font cssVariable="--font-en" preload />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="site-header__logo" href="/" aria-label={`${site.companyName} トップへ`}>
+          <Logo name={site.companyName} />
+        </a>
+        <button class="site-menu" type="button" aria-expanded="false" aria-controls="site-nav" aria-label={site.menuLabel}>
+          <span></span><span></span>
+        </button>
+        <nav id="site-nav" class="site-nav" aria-label="メインナビゲーション">
+          <ul>
+            {
+              links.map((item, i) => (
+                <li style={`--i:${i}`}>
+                  <a href={item.href} lang="en">
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+            {
+              cta && (
+                <li style={`--i:${links.length}`}>
+                  <a class="site-nav__cta" href={cta.href} lang="en">
+                    <span>{cta.label}</span>
+                    <span class="go" aria-hidden="true" />
+                  </a>
+                </li>
+              )
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <small>{site.footer.copyright}</small>
+        <div class="site-footer__links">
+          <a href="/privacy">{site.footer.privacy}</a>
+          {/* #top with no matching id goes to the very top, above the header. */}
+          <a href="#top">{site.footer.toTop} <span aria-hidden="true">↑</span></a>
+        </div>
+      </div>
+      <p class="site-footer__mark" aria-hidden="true" lang="en">
+        {word}{[...bang].map((c) => <span>{c}</span>)}
+      </p>
+    </footer>
+    <script>
+      const root = document.documentElement;
+
+      // Phone menu: a full-screen panel over the page.
+      const header = document.querySelector<HTMLElement>(".site-header")!;
+      const menuButton = header.querySelector<HTMLButtonElement>(".site-menu")!;
+      const nav = header.querySelector<HTMLElement>(".site-nav")!;
+      const away = document.querySelectorAll("main, footer");
+      const isOpen = () => root.classList.contains("menu-open");
+      const setMenu = (open: boolean, refocus = false) => {
+        root.classList.toggle("menu-open", open);
+        menuButton.setAttribute("aria-expanded", String(open));
+        for (const el of away) el.toggleAttribute("inert", open);
+        if (open) header.querySelector<HTMLElement>(".site-nav a")!.focus();
+        else if (refocus) menuButton.focus();
+      };
+      menuButton.addEventListener("click", () => setMenu(!isOpen()));
+      // A link closes the menu but keeps focus where the link takes it.
+      nav.addEventListener("click", (e) => {
+        if (isOpen() && (e.target as Element).closest("a")) setMenu(false);
+      });
+      // The page under the open menu stays put: Chromium still scrolls it on scroll keys despite overflow: hidden.
+      // A menu taller than the screen keeps them for its own scroll.
+      const scrollKeys = ["PageDown", "PageUp", " ", "ArrowDown", "ArrowUp", "End", "Home"];
+      addEventListener("keydown", (e) => {
+        if (!isOpen()) return;
+        if (e.key === "Escape") setMenu(false, true);
+        else if (scrollKeys.includes(e.key) && nav.scrollHeight <= nav.clientHeight) e.preventDefault();
+      });
+      const wide = matchMedia("(min-width: 768px)");
+      wide.addEventListener("change", () => wide.matches && isOpen() && setMenu(false));
+
+      const markScrolled = () => header.toggleAttribute("data-scrolled", scrollY > 100);
+      addEventListener("scroll", markScrolled, { passive: true });
+      markScrolled();
+
+      addEventListener("load", () => setTimeout(() => (root.dataset.smooth = "")));
+
+      // iOS Safari only applies :active when a touchstart listener exists.
+      document.addEventListener("touchstart", () => {}, { passive: true });
+
+      if (root.classList.contains("motion")) {
+        const show = (el: Element) => {
+          for (const n of el.querySelectorAll<HTMLElement>("[data-count]")) countUp(n);
+          el.classList.add("is-in");
+        };
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const { isIntersecting, target } of entries) {
+              if (!isIntersecting) continue;
+              io.unobserve(target);
+              // Wait for lazy images so the mask does not open on an empty box.
+              if (target instanceof HTMLImageElement)
+                target
+                  .decode()
+                  .catch(() => {})
+                  .then(() => show(target));
+              else show(target);
+            }
+          },
+          { rootMargin: "0px 0px -8% 0px" },
+        );
+        for (const el of document.querySelectorAll(".fade, .rise, .mask, .mask-x")) io.observe(el);
+
+        // The loops are finite and replay on re-entry, so they need no pause control (WCAG 2.2.2).
+        const play = new IntersectionObserver((entries) => {
+          for (const { isIntersecting, target } of entries) target.classList.toggle("is-playing", isIntersecting);
+        });
+        for (const el of document.querySelectorAll(".pixels, .pixel-line, .site-footer__mark")) play.observe(el);
+
+        // Scroll-driven staging in JS rather than CSS view(): it carries copy, so it
+        // must also work in Firefox and older iOS.
+        const fills = [...document.querySelectorAll<HTMLElement>("[data-fill]")];
+        // A statement has filled once its bottom is this far down the screen.
+        const FILL_END = 0.5;
+        const feeds = [...document.querySelectorAll<HTMLElement>("[data-feed]")];
+        const clamp = (v: number) => Math.min(Math.max(v, 0), 1);
+        const setVar = (el: HTMLElement, k: string, v: number) => {
+          const s = v.toFixed(3);
+          if (el.style.getPropertyValue(k) !== s) el.style.setProperty(k, s);
+        };
+        // Position in posts: 0 when the stage pins, one --step per post (the spacing of the CSS stops);
+        // y0 is the scroll offset of post 0.
+        const where = (el: HTMLElement) => {
+          const stage = el.firstElementChild as HTMLElement;
+          const cover = parseFloat(getComputedStyle(stage).top) || 0;
+          const h = Math.max((el.querySelectorAll<HTMLElement>(".feed__stop")[1]?.offsetTop ?? 0) || stage.offsetHeight, 1);
+          const top = el.getBoundingClientRect().top;
+          return { at: (cover - top) / h, h, y0: top + scrollY - cover, last: el.querySelectorAll("li").length - 1, pinned: getComputedStyle(stage).position === "sticky" };
+        };
+        // Where the statement above a feed has just filled: the CSS snap point .hero__rest.
+        const restOf = (y0: number, h: number) =>
+          fills.map((f) => Math.round(f.getBoundingClientRect().bottom + scrollY - FILL_END * innerHeight)).find((y) => y < y0 && y > y0 - 2 * h);
+        // Wheel and keys move a feed exactly one post per gesture, plus one screen to enter or leave it,
+        // because CSS proximity snap alone lets a wheel notch snap back to the same post. Input is swallowed
+        // while a move runs and while a trackpad's inertia keeps sending wheel events. Touch keeps the
+        // native scroll and the CSS snap, and settle() below corrects where it ends.
+        let goal: number | null = null;
+        let movedAt = 0;
+        let swallowedAt = 0;
+        let hooked = false;
+        const go = (dir: number) => {
+          for (const el of feeds) {
+            const { at, h, y0, last, pinned } = where(el);
+            if (!pinned) continue;
+            // The statement above the feed rests where it has just filled (the CSS snap point .hero__rest). Coming
+            // down, a gesture within a screen of it lands there, or the move into the feed carries it off half read.
+            // Going up, the first post steps back to it, and it steps to the top of the page: a whole screen up stops
+            // a few pixels short on laptop screens. Only a statement grown past 1.5 screens (zoom) steps a screen up,
+            // clear of its snap. Above that the page scrolls freely (null).
+            const rest = restOf(y0, h);
+            const up = rest === undefined ? 0 : rest - innerHeight;
+            const stop =
+              rest === undefined || (dir > 0 && !(rest > scrollY + 2 && rest < scrollY + innerHeight)) || (dir < 0 && at > 0.02)
+                ? undefined
+                : dir > 0 || scrollY > rest + 2
+                  ? rest
+                  : scrollY > rest - 2
+                    ? up < innerHeight / 2
+                      ? 0
+                      : up
+                    : null;
+            if (stop === null) continue;
+            const to = dir > 0 ? Math.floor(at + 0.02) + 1 : Math.ceil(at - 0.02) - 1;
+            if (stop === undefined && (to < (dir > 0 ? 0 : -1) || to > (dir > 0 ? last + 1 : last) || Math.abs(to - at) > 1.02)) continue;
+            goal = stop ?? Math.round(y0 + to * h);
+            movedAt = performance.now();
+            scrollTo({ top: goal, behavior: "smooth" });
+            return true;
+          }
+          return false;
+        };
+        const busy = () => {
+          const now = performance.now();
+          if (goal !== null && (Math.abs(scrollY - goal) < 2 || now - movedAt > 1500)) goal = null;
+          return goal !== null || (now - swallowedAt < 150 && now - movedAt < 1500);
+        };
+        const onWheel = (e: WheelEvent) => {
+          if (e.ctrlKey || !e.deltaY || Math.abs(e.deltaX) > Math.abs(e.deltaY) || isOpen()) return;
+          if (busy()) swallowedAt = performance.now();
+          else if (!go(Math.sign(e.deltaY))) return;
+          e.preventDefault();
+        };
+        const keyDir: Record<string, number> = { PageDown: 1, ArrowDown: 1, PageUp: -1, ArrowUp: -1, " ": 1 };
+        addEventListener("keydown", (e) => {
+          const dir = (keyDir[e.key] ?? 0) * (e.key === " " && e.shiftKey ? -1 : 1);
+          const jump = feeds.length > 0 && (e.key === "End" || e.key === "Home");
+          if ((!dir && !jump) || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || isOpen()) return;
+          if ((e.target as Element).closest?.("input, textarea, select, button, [contenteditable]")) return;
+          // WebKit holds native End and Home at every snap-stop post; a script scroll passes them.
+          if (jump) {
+            goal = null;
+            e.preventDefault();
+            scrollTo({ top: e.key === "End" ? document.documentElement.scrollHeight : 0 });
+          } else if (busy() || go(dir)) e.preventDefault();
+        });
+        // A focused product card brings its post to its stop: the posts are stacked in a pinned stage,
+        // where the browser's own scroll-into-view cannot reach them.
+        for (const el of feeds)
+          el.addEventListener("focusin", (e) => {
+            const li = (e.target as Element).closest("li");
+            const { h, y0, pinned } = where(el);
+            if (!li || !pinned) return;
+            goal = Math.round(y0 + [...el.querySelectorAll("li")].indexOf(li) * h);
+            movedAt = performance.now();
+            requestAnimationFrame(() => scrollTo({ top: goal ?? scrollY, behavior: "smooth" }));
+          });
+        let queued = false;
+        const update = () => {
+          queued = false;
+          const vh = innerHeight;
+          for (const el of fills) {
+            const r = el.getBoundingClientRect();
+            // 0 when the top is at 80% of the screen, 1 when the bottom is at FILL_END.
+            const p = clamp((0.8 * vh - r.top) / ((0.8 - FILL_END) * vh + r.height)).toFixed(2);
+            if (el.style.getPropertyValue("--p") !== p) el.style.setProperty("--p", p);
+          }
+          if (goal !== null && Math.abs(scrollY - goal) < 2) goal = null;
+          let near = false;
+          for (const el of feeds) {
+            const { at, last, pinned } = where(el);
+            // In posts, so about two screens above (the statement's rest and a screen before it) and one below.
+            near ||= at > -3 && at < last + 2;
+            setVar(el, "--t", Math.min(Math.max(at, 0), last));
+            // A post counts as shown once the scroll has settled on it; outside the feed it resets,
+            // so each arrival plays its pop once.
+            const k = Math.round(at);
+            let step = el.dataset.step ?? "-1";
+            if (k >= 0 && k <= last && Math.abs(at - k) < 0.04) step = String(k);
+            else if (at < -0.5 || at > last + 0.5) step = "-1";
+            if (el.dataset.step !== step) {
+              el.dataset.step = step;
+              el.querySelectorAll("li").forEach((li, i) => li.toggleAttribute("data-on", String(i) === step));
+              // A focused card follows the post on show, or it stays hidden under it and Enter opens the wrong link.
+              const cards = el.querySelectorAll<HTMLElement>(".post__card");
+              const focused = document.activeElement;
+              if (pinned && k === Number(step) && focused instanceof HTMLElement && focused !== cards[k] && [...cards].includes(focused))
+                cards[k].focus({ preventScroll: true });
+            }
+          }
+          // The wheel listener blocks scrolling while it runs, so it is only there near a feed.
+          if (near !== hooked) {
+            hooked = near;
+            if (near) addEventListener("wheel", onWheel, { passive: false });
+            else removeEventListener("wheel", onWheel);
+          }
+        };
+        const queue = () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(update);
+        };
+        // A fast fling skips the statement's rest and a long one skips post 0, and an in-page reveal (find,
+        // scrollIntoView) can stop between posts, so once a scroll ends it lands where go() would have.
+        let touching = false;
+        let touchFrom: number | null = null;
+        const settle = () => {
+          // A move that ends short of its goal was cut off (WebKit: by the same gesture's own wheel scroll);
+          // left set, it would swallow the next gesture as well.
+          if (goal !== null && Math.abs(scrollY - goal) > 2) goal = null;
+          if (touching || busy()) return;
+          const from = touchFrom;
+          touchFrom = null;
+          for (const el of feeds) {
+            const { at, h, y0, last, pinned } = where(el);
+            if (!pinned) continue;
+            const rest = restOf(y0, h);
+            const k = Math.round(at);
+            const to =
+              from !== null && rest !== undefined && from < rest - 2 && scrollY > rest + 2 && at < 1
+                ? rest
+                : from !== null && from < y0 - 2 && at > 0.04 && at < 2
+                  ? y0
+                  : at > 0 && at < last && Math.abs(at - k) > 0.04
+                    ? Math.round(y0 + k * h)
+                    : null;
+            if (to === null || Math.abs(to - scrollY) < 2) continue;
+            goal = to;
+            movedAt = performance.now();
+            scrollTo({ top: to, behavior: "smooth" });
+            return;
+          }
+        };
+        let idle = 0;
+        const later = () => {
+          clearTimeout(idle);
+          idle = window.setTimeout(settle, 150);
+        };
+        const hasEnd = "onscrollend" in window;
+        addEventListener(hasEnd ? "scrollend" : "scroll", hasEnd ? settle : later, { passive: true });
+        addEventListener("touchstart", () => ((touching = true), (touchFrom = scrollY)), { passive: true });
+        const untouch = (e: TouchEvent) => {
+          touching = e.touches.length > 0;
+          if (!hasEnd) later();
+        };
+        addEventListener("touchend", untouch, { passive: true });
+        addEventListener("touchcancel", untouch, { passive: true });
+        addEventListener("scroll", queue, { passive: true });
+        addEventListener("resize", queue);
+        update();
+        root.dataset.motionReady = "";
+      }
+
+      function countUp(el: HTMLElement) {
+        const to = Number(el.dataset.count);
+        const start = performance.now() + 300;
+        const tick = (now: number) => {
+          const t = Math.min(Math.max((now - start) / 1400, 0), 1);
+          el.textContent = String(t < 1 ? Math.round(to * (1 - 2 ** (-10 * t))) : to);
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+
+      root.dataset.navReady = "";
+    </script>
+  </body>
+</html>
+
+<style>
+  /* An ink bar with the logo on a white tile (neuealle). It sticks to the top
+     and, from 768px, floats a little down once the page is scrolled. It moves
+     with top, not a transform: a transform would become the containing block
+     of the fixed phone menu. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: var(--header-h);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-inline-end: var(--gutter);
+    border-radius: 0 16px 16px 0;
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  .site-header :focus-visible {
+    outline-color: var(--orange);
+  }
+
+  .site-header__logo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    padding-inline: var(--gutter) clamp(20px, 3vw, 40px);
+    background: var(--white);
+    text-decoration: none;
+  }
+
+  .site-header .site-header__logo:focus-visible {
+    outline-color: var(--orange-text);
+    outline-offset: -4px;
+  }
+
+  .site-menu {
+    display: none;
+  }
+
+  .site-nav {
+    margin-inline-start: auto;
+    padding-inline: 16px 10px;
+  }
+
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 3vw, 44px);
+  }
+
+  .site-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-nav a:not(.site-nav__cta)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 10px;
+    left: 0;
+    height: 1px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  .site-nav a:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .site-nav__cta {
+    gap: 12px;
+    padding: 6px 6px 6px 20px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: var(--ink);
+    transition:
+      background-color 0.4s var(--ease-out),
+      scale 0.2s var(--ease-out);
+  }
+
+  .site-nav__cta .go {
+    --go: 32px;
+    --arrow-size: 16px 14px;
+    --go-bg: var(--ink);
+    --go-fg: var(--orange);
+  }
+
+  .site-nav__cta:focus-visible {
+    background: var(--white);
+  }
+
+  .site-nav__cta:active {
+    scale: 0.97;
+  }
+
+  @media (hover: hover) {
+    .site-nav a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    .site-nav__cta:hover {
+      background: var(--white);
+    }
+  }
+
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .site-header {
+      transition: top 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+    .site-header[data-scrolled] {
+      top: var(--header-drop);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .site-header__inner {
+      margin: 0;
+      border-radius: 0;
+      background: none;
+    }
+    .site-header__logo {
+      padding-inline: var(--gutter) 20px;
+      border-radius: 0 0 16px 0;
+    }
+  }
+
+  /* Phones with JS: a menu button and a full-screen ink menu. */
+  @media (max-width: 767px) {
+    :global(.js) .site-menu {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      place-content: center;
+      gap: 8px;
+      width: 56px;
+      height: 56px;
+      margin-inline-start: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0 0 0 16px;
+      background: var(--ink);
+      cursor: pointer;
+    }
+    .site-menu:focus-visible {
+      outline-offset: -4px;
+    }
+    .site-menu span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition:
+        translate 0.3s var(--ease-out),
+        rotate 0.3s var(--ease-out);
+    }
+    :global(.menu-open) .site-menu span:first-child {
+      translate: 0 5px;
+      rotate: 45deg;
+    }
+    :global(.menu-open) .site-menu span:last-child {
+      translate: 0 -5px;
+      rotate: -45deg;
+    }
+    :global(.js) .site-nav {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow-y: auto;
+      padding: calc(var(--header-h) + 40px) var(--gutter) 40px;
+      background: var(--ink);
+      clip-path: inset(0 0 100% 0);
+      visibility: hidden;
+      transition:
+        clip-path 0.5s var(--ease-mask),
+        visibility 0s 0.5s;
+    }
+    :global(.menu-open) .site-nav {
+      clip-path: inset(0);
+      visibility: visible;
+      transition: clip-path 0.5s var(--ease-mask);
+    }
+    :global(.js) .site-nav ul {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    :global(.js) .site-nav a {
+      min-height: 60px;
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    /* As large as the other items: the orange and the arrow set it apart, not a smaller pill. */
+    :global(.js) .site-nav__cta {
+      gap: 16px;
+      margin-top: 16px;
+      padding: 0;
+      background: none;
+      color: var(--orange);
+    }
+    :global(.js) .site-nav__cta .go {
+      --go: 48px;
+      --arrow-size: 24px 21px;
+      --go-bg: var(--orange);
+      --go-fg: var(--ink);
+    }
+    :global(.js) .site-nav li {
+      opacity: 0;
+      translate: 0 24px;
+      transition:
+        opacity 0.4s var(--ease-out),
+        translate 0.5s var(--ease-out);
+    }
+    :global(.menu-open) .site-nav li {
+      opacity: 1;
+      translate: none;
+      transition-delay: calc(150ms + var(--i) * 60ms);
+    }
+    :global(:root.menu-open) {
+      overflow: hidden;
+    }
+  }
+
+  /* Landscape phones: all four items fit on the screen. */
+  @media (max-width: 767px) and (max-height: 480px) {
+    :global(.js) .site-nav {
+      padding-block: calc(var(--header-h) + 8px) 16px;
+    }
+    :global(.js) .site-nav ul {
+      gap: 0;
+    }
+    :global(.js) .site-nav a {
+      min-height: 48px;
+      font-size: 1.75rem;
+    }
+    :global(.js) .site-nav__cta {
+      margin-top: 12px;
+    }
+  }
+
+  /* Phones without JS: the links are a second row under the logo. */
+  @media (max-width: 767px) {
+    :global(:root:not(.js)) .site-header {
+      position: relative;
+    }
+    :global(:root:not(.js)) .site-header__inner {
+      flex-wrap: wrap;
+      background: var(--ink);
+    }
+    :global(:root:not(.js)) .site-header__logo {
+      height: 56px;
+    }
+    :global(:root:not(.js)) .site-nav {
+      width: 100%;
+      height: 48px;
+      padding-inline: var(--gutter);
+    }
+    :global(:root:not(.js)) .site-nav ul {
+      justify-content: space-between;
+      height: 100%;
+      gap: 4px;
+    }
+    :global(:root:not(.js)) .site-nav a {
+      font-size: 0.6875rem;
+      letter-spacing: 0.02em;
+    }
+    :global(:root:not(.js)) .site-nav__cta {
+      padding-inline: 16px;
+    }
+    :global(:root:not(.js)) .site-nav__cta .go {
+      display: none;
+    }
+  }
+
+  /* An ink slab that overlaps the last section; the orange wordmark is the
+     one large orange area on the site. */
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: calc(-1 * var(--footer-r));
+    overflow: clip;
+    container-type: inline-size;
+    border-radius: var(--footer-r) var(--footer-r) 0 0;
+    background: var(--ink);
+    color: var(--on-ink-muted);
+    font-size: 0.8125rem;
+  }
+
+  .site-footer :focus-visible {
+    outline-color: var(--orange);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-block: clamp(40px, 5vw, 64px) 28px;
+  }
+
+  .site-footer small {
+    font-size: inherit;
+    word-break: keep-all;
+    text-wrap: balance;
+  }
+
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 24px;
+  }
+
+  .site-footer a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-block: -10px;
+    text-underline-offset: 4px;
+  }
+
+  /* 7.14em wide in Archivo 800 at 125% width; 7.25 leaves room for rounding. "More Live !!!"
+     has no descenders, so it sits flush on the bottom edge. */
+  .site-footer__mark {
+    width: min(var(--container), 100cqi - 2 * var(--gutter));
+    margin-inline: auto;
+    color: var(--orange);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: min(calc((100cqi - 2 * var(--gutter)) / 7.25), calc(var(--container) / 7.25));
+    font-weight: 800;
+    line-height: 0.78;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    /* Its line box reaches up over the to-top link. */
+    pointer-events: none;
+  }
+
+  /* One "!" hops at a time, so the mark never loses its "!!!". */
+  .site-footer__mark span {
+    display: inline-block;
+  }
+
+  :global(.motion) .site-footer__mark.is-playing span {
+    animation: hop 1.2s steps(1) 3;
+  }
+
+  :global(.motion) .site-footer__mark.is-playing span:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+
+  :global(.motion) .site-footer__mark.is-playing span:nth-child(3) {
+    animation-delay: 0.8s;
+  }
+
+  @keyframes hop {
+    0% {
+      translate: 0 -0.06em;
+    }
+    25% {
+      translate: 0;
+    }
+  }
+</style>

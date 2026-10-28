@@ -1,0 +1,219 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, getEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
+import Base from "../../layouts/Base.astro";
+import "../../styles/detail.css";
+import { fill, lines, phrase } from "../../lib/phrase";
+
+export async function getStaticPaths() {
+  const services = await getCollection("services");
+  return services.map((service) => ({ params: { slug: service.id }, props: { service } }));
+}
+
+const { service } = Astro.props;
+const s = service.data;
+const site = (await getEntry("site", "site"))!.data;
+const labels = site.serviceDetail;
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+
+const icons = import.meta.glob<{ default: ImageMetadata }>("../../assets/icons/*.png", { eager: true });
+const icon = (name: string) => icons[`../../assets/icons/${name}.png`].default;
+// "50 HOURS" → the number counts up, the unit stays put.
+const [, statNum, statUnit] = s.stat?.value.match(/^(\d+)(.*)$/) ?? [];
+---
+
+<Base title={s.meta.title} description={s.meta.description}>
+  <section class:list={["detail-hero", { "has-stat": s.stat }]}>
+    <div class="container detail-hero__inner">
+      <a class="detail-back" href="/#service"><span aria-hidden="true">←</span> {labels.back}</a>
+      <p class="detail-hero__number rise" aria-hidden="true" lang="en">{s.number}</p>
+      <div class="detail-hero__title">
+        <p class="eyebrow fade" lang="en">{labels.numberPrefix} {s.number}</p>
+        <p class="detail-hero__label fade" lang="en">{s.label}</p>
+        <h1 class="phrase" style="--base:1" set:html={lines(s.title)} />
+      </div>
+      <p class="detail-hero__lead lead phrase fade" style="--i:3" set:html={phrase(s.lead)} />
+      <figure class="detail-visual__plate bleed-r mask-x">
+        <span class="detail-visual__art">
+          <Image
+            class="mask"
+            src={s.image}
+            alt=""
+            widths={[640, 960, 1280, 1536]}
+            sizes="(min-width: 1024px) min(58vw, 880px), (min-width: 768px) 92vw, 106vw"
+            quality={88}
+            loading="eager"
+          />
+        </span>
+        <figcaption class="phrase fade" set:html={phrase(s.imageCaption)} />
+      </figure>
+    </div>
+  </section>
+
+  {
+    s.stat && (
+      <section class="detail-visual">
+        <div class="container detail-visual__inner">
+          <div class="detail-stat fade">
+            <p class="eyebrow" lang="en">{s.stat.eyebrow}</p>
+            <p class="detail-stat__value" lang="en">
+              {statNum ? (
+                <>
+                  <span data-count={statNum}>{statNum}</span>
+                  <span class="detail-stat__unit">{statUnit}</span>
+                </>
+              ) : (
+                s.stat.value
+              )}
+            </p>
+            <h2>{s.stat.label}</h2>
+            <p class="detail-stat__text">{s.stat.text}</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="container detail-intro">
+      <p class="eyebrow fade" lang="en">{s.intro.eyebrow}</p>
+      <div class="detail-intro__grid">
+        <h2 class="statement phrase" data-fill set:html={fill(s.intro.title)} />
+        <div class="detail-intro__text fade">
+          {s.intro.descriptions.map((d) => <p>{d}</p>)}
+          <a class="button button--light detail-intro__link" href="/tiktok-shop">
+            <span>{labels.tiktok}</span>
+            <span class="go" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    s.journey && (
+      <section class="section">
+        <div class="container">
+          <div class="journey-panel bleed-l slab mask-x">
+            <div class="heading detail-heading">
+              <p class="eyebrow rise" lang="en">{s.journey.eyebrow}</p>
+              <h2 class="phrase rise" set:html={phrase(s.journey.title)} />
+              <p class="journey-panel__text fade">{s.journey.text}</p>
+            </div>
+            <div class="journey-wrap">
+              <span class="journey__spine pixel-line" aria-hidden="true" />
+              <ol class="journey">
+                {s.journey.steps.map((step, i) => (
+                  <li class="journey__step fade" style={`--i:${i % 2}`}>
+                    <span class="journey__icon">
+                      <Image src={icon(step.icon)} alt="" widths={[96, 192]} sizes="96px" quality={88} />
+                    </span>
+                    <span class="journey__number" lang="en">
+                      {labels.stepPrefix} {pad(i)}
+                    </span>
+                    <h3 class="phrase" set:html={phrase(step.title)} />
+                    <p class="journey__summary phrase" set:html={phrase(step.summary)} />
+                    <ul>
+                      {step.points.map((point) => (
+                        <li class="phrase" set:html={phrase(point)} />
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="heading detail-heading">
+        <p class="eyebrow rise" lang="en">{s.features.eyebrow}</p>
+        <h2 class="phrase rise" set:html={phrase(s.features.title)} />
+      </div>
+      <ul class="features">
+        {
+          s.features.items.map((item, i) => (
+            <li class="feature fade" style={`--i:${i % 3}`}>
+              <span class="feature__number">{pad(i)}</span>
+              <h3 class="phrase" set:html={phrase(item.title)} />
+              <p class="feature__text phrase" set:html={phrase(item.text)} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    s.flow && (
+      <section class="section">
+        <div class="container">
+          <div class="heading detail-heading">
+            <p class="eyebrow rise" lang="en">{s.flow.eyebrow}</p>
+            <h2 class="rise">{s.flow.title}</h2>
+          </div>
+          <div class="flow-wrap">
+            <span class="flow__line pixel-line" aria-hidden="true" />
+            <ol class="flow">
+              {s.flow.steps.map((step, i) => (
+                <li class="flow__step fade" style={`--i:${i % 4}`}>
+                  <span class="flow__number">{pad(i)}</span>
+                  <div>
+                    <h3 class="phrase" set:html={phrase(step.title)} />
+                    <p class="muted phrase" set:html={phrase(step.text)} />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    s.comingSoon && (
+      <section class="section section--tint">
+        <div class="container coming-soon">
+          <div class="heading">
+            <p class="eyebrow rise" lang="en">{s.comingSoon.eyebrow}</p>
+            <h2 class="phrase rise" set:html={phrase(s.comingSoon.title)} />
+            <p class="muted fade">{s.comingSoon.text}</p>
+          </div>
+          <ul>
+            {s.comingSoon.items.map((item, i) => (
+              <li class="fade" style={`--i:${i % 3}`}>
+                <span class="phrase" set:html={phrase(item)} />
+                <span class="coming-soon__badge">{s.comingSoon!.badge}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="container">
+      <a class="detail-cta entry entry--ink bleed-r mask-x" href={`/contact?type=${s.cta.type}`}>
+        <span class="entry__sticker">
+          <Image src={icon(s.cta.type === "creator" ? "commercer" : "maker")} alt="" widths={[240, 464]} sizes="(min-width: 1024px) 232px, 120px" quality={88} />
+        </span>
+        <div class="detail-cta__copy">
+          <p class="eyebrow fade" lang="en">{s.cta.eyebrow}</p>
+          <h2 class="phrase" set:html={lines(s.cta.title)} />
+          <p class="entry__sub fade" style="--i:2">{s.cta.text}</p>
+        </div>
+        <span class="detail-cta__go fade" style="--i:3">
+          <span class="phrase" set:html={phrase(s.cta.label)} />
+          <span class="go" aria-hidden="true" />
+        </span>
+      </a>
+    </div>
+  </section>
+</Base>

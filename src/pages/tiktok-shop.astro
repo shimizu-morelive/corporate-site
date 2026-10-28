@@ -1,0 +1,475 @@
+---
+import { Image } from "astro:assets";
+import { getCollection, getEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
+import commercer from "../assets/icons/commercer.png";
+import live from "../assets/icons/live.png";
+import maker from "../assets/icons/maker.png";
+import Base from "../layouts/Base.astro";
+import "../styles/detail.css";
+import { fill, lines, phrase } from "../lib/phrase";
+
+const t = (await getEntry("tiktokShop", "tiktok-shop"))!.data;
+const site = (await getEntry("site", "site"))!.data;
+const services = (await getCollection("services")).sort((a, b) => a.data.order - b.data.order);
+const pad = (n: number) => String(n + 1).padStart(2, "0");
+const url = (p: string) => new URL(p, Astro.site).href;
+
+const icons = import.meta.glob<{ default: ImageMetadata }>("../assets/icons/*.png", { eager: true });
+const icon = (name: string) => icons[`../assets/icons/${name}.png`].default;
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: t.breadcrumb.home, item: url("/") },
+    { "@type": "ListItem", position: 2, name: t.breadcrumb.label, item: url("/tiktok-shop") },
+  ],
+};
+const faq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: t.faq.items.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+};
+const variants = ["entry--orange", "", "entry--ink"];
+---
+
+<Base title={t.meta.title} description={t.meta.description}>
+  <script type="application/ld+json" set:html={JSON.stringify([breadcrumb, faq]).replaceAll("<", "\\u003c")} />
+
+  <section class="detail-hero has-stat">
+    <div class="container detail-hero__inner">
+      <nav class="crumbs" aria-label={t.breadcrumb.name}>
+        <ol>
+          <li><a href="/">{t.breadcrumb.home}</a></li>
+          <li aria-current="page">{t.breadcrumb.label}</li>
+        </ol>
+      </nav>
+      <p class="detail-hero__number detail-hero__number--word rise" aria-hidden="true" lang="en">{t.word}</p>
+      <div class="detail-hero__title">
+        <h1 class="phrase" style="--base:1" set:html={lines(t.title)} />
+      </div>
+      <p class="detail-hero__lead lead phrase fade" style="--i:3" set:html={phrase(t.lead)} />
+      <figure class="detail-visual__plate bleed-r mask-x">
+        <span class="detail-visual__art">
+          <Image
+            class="mask"
+            src={t.image}
+            alt=""
+            widths={[640, 960, 1280, 1536]}
+            sizes="(min-width: 1024px) min(58vw, 880px), (min-width: 768px) 92vw, 106vw"
+            quality={88}
+            loading="eager"
+          />
+        </span>
+        <figcaption class="phrase fade" set:html={phrase(t.imageCaption)} />
+      </figure>
+    </div>
+  </section>
+
+  <section class="detail-visual">
+    <div class="container detail-visual__inner">
+      <div class="detail-stat fade">
+        <p class="eyebrow" lang="en">{t.stat.eyebrow}</p>
+        <p class="detail-stat__value detail-stat__value--date" lang="en">{t.stat.value}</p>
+        <h2 class="phrase">{t.stat.label}</h2>
+        <p class="detail-stat__text">{t.stat.text}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container detail-intro">
+      <p class="eyebrow fade" lang="en">{t.intro.eyebrow}</p>
+      <div class="detail-intro__grid">
+        <h2 class="statement phrase" data-fill set:html={fill(t.intro.title)} />
+        <div class="detail-intro__text fade">{t.intro.descriptions.map((d) => <p>{d}</p>)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="journey-panel bleed-l slab mask-x">
+        <div class="heading detail-heading">
+          <p class="eyebrow rise" lang="en">{t.ways.eyebrow}</p>
+          <h2 class="phrase rise" set:html={phrase(t.ways.title)} />
+          <p class="journey-panel__text fade">{t.ways.text}</p>
+        </div>
+        <div class="journey-wrap">
+          <span class="journey__spine pixel-line" aria-hidden="true" />
+          <ol class="journey">
+            {
+              t.ways.items.map((step, i) => (
+                <li class="journey__step fade" style={`--i:${i % 2}`}>
+                  <span class="journey__icon">
+                    <Image src={icon(step.icon)} alt="" widths={[96, 192]} sizes="96px" quality={88} />
+                  </span>
+                  <span class="journey__number" lang="en">
+                    {site.serviceDetail.stepPrefix} {pad(i)}
+                  </span>
+                  <h3 class="phrase" set:html={phrase(step.title)} />
+                  <p class="journey__summary phrase" set:html={phrase(step.summary)} />
+                  <ul>
+                    {step.points.map((point) => (
+                      <li class="phrase" set:html={phrase(point)} />
+                    ))}
+                  </ul>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="heading detail-heading">
+        <p class="eyebrow rise" lang="en">{t.audiences.eyebrow}</p>
+        <h2 class="phrase rise" set:html={phrase(t.audiences.title)} />
+      </div>
+      <ul class="audiences">
+        {
+          t.audiences.items.map((a, i) => (
+            <li class="audience fade" style={`--i:${i}`}>
+              <span class="audience__sticker entry__sticker">
+                <Image src={i ? commercer : maker} alt="" widths={[240, 464]} sizes="(min-width: 1024px) 232px, 120px" quality={88} />
+              </span>
+              <p class="audience__label" lang="en">{a.label}</p>
+              <h3 class="phrase" set:html={phrase(a.title)} />
+              <p class="audience__text phrase" set:html={phrase(a.text)} />
+              <ul>
+                {a.points.map((point) => (
+                  <li class="phrase" set:html={phrase(point)} />
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="support__head">
+        <div class="heading">
+          <p class="eyebrow rise" lang="en">{t.support.eyebrow}</p>
+          <h2 class="rise">{t.support.title}</h2>
+        </div>
+        <p class="lead phrase fade" set:html={phrase(site.service.intro)} />
+      </div>
+      <ol class="support">
+        {
+          services.map((s, i) => (
+            <li class="fade" style={`--i:${i}`}>
+              <a class:list={["support__item", "entry", variants[i % 3]]} href={`/service/${s.id}`}>
+                <span class="support__num entry__accent">{s.data.number}</span>
+                <h3 class="phrase" set:html={phrase(s.data.card.title)} />
+                <span class="entry__sub phrase" set:html={phrase(s.data.card.text)} />
+                <span class="support__more">
+                  <span>{site.service.more}</span>
+                  <span class="go" aria-hidden="true" />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="heading detail-heading">
+        <p class="eyebrow rise" lang="en">{t.faq.eyebrow}</p>
+        <h2 class="rise">{t.faq.title}</h2>
+      </div>
+      <ol class="faq">
+        {
+          t.faq.items.map(({ q, a }) => (
+            <li class="faq__item fade">
+              <h3 class="phrase">
+                <span class="faq__mark" lang="en" aria-hidden="true">
+                  Q
+                </span>
+                <span set:html={phrase(q)} />
+              </h3>
+              <p class="faq__answer phrase" set:html={phrase(a)} />
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <a class="detail-cta entry entry--ink bleed-r mask-x" href="/contact">
+        <span class="entry__sticker">
+          <Image src={live} alt="" widths={[240, 464]} sizes="(min-width: 1024px) 232px, 120px" quality={88} />
+        </span>
+        <div class="detail-cta__copy">
+          <p class="eyebrow fade" lang="en">{t.cta.eyebrow}</p>
+          <h2 class="phrase" set:html={lines(t.cta.title)} />
+          <p class="entry__sub fade" style="--i:2">{t.cta.text}</p>
+        </div>
+        <span class="detail-cta__go fade" style="--i:3">
+          <span class="phrase" set:html={phrase(t.cta.label)} />
+          <span class="go" aria-hidden="true" />
+        </span>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* In .detail-back's grid slot, quieter than it: the h1 below names the page. */
+  .crumbs {
+    justify-self: start;
+    color: var(--muted);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .crumbs ol {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+  }
+
+  .crumbs li + li::before {
+    content: "/";
+    margin-right: 10px;
+    color: var(--muted);
+  }
+
+  /* A 44px hit area ("TOP" is about 35px wide) without moving the line. */
+  .crumbs a {
+    display: inline-block;
+    padding: 12px 6px;
+    margin: -12px -6px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  /* "SHOP" is about 3.7em wide: kept inside the container on small phones,
+     and clear of the plate from 1024px. */
+  .detail-hero__number--word {
+    font-size: min(clamp(5rem, 1.5rem + 8.5cqi, 8.5rem), (100cqi - 2 * var(--gutter)) / 3.75);
+  }
+
+  /* Ten characters need about 7em: one line inside the tile's padding from 320px. */
+  .detail-stat__value--date {
+    font-size: clamp(1.75rem, 0.9rem + 5vw, 3.5rem);
+    letter-spacing: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .crumbs {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Audiences: two tiles with a sticker on their top edge, staged like the
+     journey. Not links: the services below are. */
+  /* The top margin collapses with the heading's bottom margin, so it repeats
+     that margin on top of the sticker's overhang. */
+  .audiences {
+    display: grid;
+    gap: calc(var(--sticker) * 0.45 + 32px);
+    margin-top: calc(var(--sticker) * 0.45 + clamp(32px, 5vw, 56px));
+  }
+
+  .audience {
+    --pad: clamp(28px, 4cqi, 56px);
+    --dash: var(--ink);
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    padding: calc(var(--sticker) * 0.55 + var(--pad) * 0.5) var(--pad) var(--pad);
+    border-radius: var(--r-l);
+    background: var(--orange);
+    color: var(--ink);
+  }
+
+  .audience + .audience {
+    --dash: var(--orange);
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  .audience + .audience .audience__sticker {
+    rotate: 6deg;
+  }
+
+  .audience__label {
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .audience + .audience .audience__label {
+    color: var(--orange);
+  }
+
+  .audience h3 {
+    font-size: clamp(1.375rem, 1rem + 1.4vw, 2rem);
+  }
+
+  .audience + .audience .audience__text {
+    color: var(--on-ink-muted);
+  }
+
+  .audience ul {
+    display: grid;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+    font-size: 0.9375rem;
+  }
+
+  .audience ul li {
+    display: flex;
+    gap: 10px;
+  }
+
+  .audience ul li::before {
+    content: "";
+    flex: none;
+    width: 10px;
+    height: 1px;
+    margin-top: 0.95em;
+    background: var(--dash);
+  }
+
+  @media (min-width: 960px) {
+    .audiences {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 20px;
+    }
+    .audience + .audience {
+      margin-top: 96px;
+    }
+  }
+
+  /* Support: the three services as whole-panel links, stepping down. */
+  .support__head {
+    display: grid;
+    gap: 20px 48px;
+  }
+
+  @media (min-width: 960px) {
+    .support__head {
+      grid-template-columns: auto 1fr;
+      align-items: end;
+    }
+    .support__head .lead {
+      justify-self: end;
+      text-align: right;
+    }
+  }
+
+  .support {
+    display: grid;
+    gap: 16px;
+    margin-top: clamp(48px, 6vw, 80px);
+  }
+
+  .support li:nth-child(2) .support__item {
+    --bg: var(--tint);
+    --accent: var(--orange-deep);
+  }
+
+  .support__item {
+    --pad: clamp(24px, 3cqi, 40px);
+    align-content: start;
+    gap: 14px;
+    min-height: 100%;
+    padding: var(--pad);
+  }
+
+  .support__num {
+    font-family: var(--font-en), var(--font-jp);
+    font-size: clamp(4rem, 2rem + 5vw, 6.5rem);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .support__item h3 {
+    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem);
+    line-height: 1.4;
+  }
+
+  .support__more {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: auto;
+    padding-top: 12px;
+    font-weight: 700;
+  }
+
+  @media (min-width: 1024px) {
+    .support {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .support li:nth-child(2) {
+      margin-top: 64px;
+    }
+    .support li:nth-child(3) {
+      margin-top: 128px;
+    }
+  }
+
+  /* FAQ: every answer always shown, so find-in-page, screen readers and the
+     FAQPage data all see the same text. */
+  .faq__item {
+    display: grid;
+    gap: 12px 48px;
+    padding-block: 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .faq__item:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq__item h3 {
+    display: flex;
+    gap: 14px;
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .faq__mark {
+    flex: none;
+    color: var(--orange-text);
+    font-family: var(--font-en), var(--font-jp);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .faq__answer {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+
+  @media (min-width: 960px) {
+    .faq__item {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+</style>
